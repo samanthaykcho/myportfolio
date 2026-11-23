@@ -96,3 +96,34 @@ document.fonts.ready.then(() => {
   lockup.style.width = lockup.getBoundingClientRect().width + "px";
   requestAnimationFrame(animate);
 });
+
+// ---------- Video background ----------
+const bgVideo = document.getElementById("bg-video");
+
+// No sound, ever.
+bgVideo.muted = true;
+bgVideo.defaultMuted = true;
+
+// Play at half speed.
+bgVideo.playbackRate = 0.5;
+bgVideo.addEventListener("loadedmetadata", () => { bgVideo.playbackRate = 0.5; });
+bgVideo.play().catch(() => { /* autoplay blocked: the blue background stays */ });
+
+// Blur is gentle in the middle of the clip and ramps up at the very start and
+// very end, so the jump when it loops is hidden.
+const BLUR_BASE = 4;   // px, during the clip
+const BLUR_PEAK = 16;  // px, at the loop point
+const RAMP = 1.2;      // seconds of video over which the blur ramps
+
+function updateVideoBlur() {
+  const d = bgVideo.duration;
+  if (d && isFinite(d)) {
+    const t = bgVideo.currentTime;
+    const edge = Math.min(t, d - t);                    // seconds from nearest end
+    const k = Math.max(0, 1 - edge / Math.min(RAMP, d / 2));
+    const eased = k * k * (3 - 2 * k);                  // smoothstep
+    bgVideo.style.filter = `blur(${(BLUR_BASE + (BLUR_PEAK - BLUR_BASE) * eased).toFixed(1)}px)`;
+  }
+  requestAnimationFrame(updateVideoBlur);
+}
+requestAnimationFrame(updateVideoBlur);
