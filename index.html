@@ -24,12 +24,50 @@
     <div class="bg-grain"></div>
   </div>
 
-  <header class="hero">
-    <div class="lockup" id="lockup">
-      <h1 class="vp name" data-from="600" data-to="800" data-radius="130" data-pull="0.1">samantha cho</h1>
-      <p class="vp tagline" id="tagline" data-from="400" data-to="700" data-radius="90" data-pull="0.08">i love making things work well and look cool!</p>
+  <!-- title page: stays pinned while the contents page slides up over it -->
+  <div class="intro">
+    <header class="hero">
+      <div class="lockup" id="lockup">
+        <h1 class="vp name" data-from="600" data-to="800" data-radius="130" data-pull="0.1">samantha cho</h1>
+        <p class="vp tagline" id="tagline" data-from="400" data-to="700" data-radius="90" data-pull="0.08">i love making things work well and look cool!</p>
+      </div>
+    </header>
+  </div>
+
+  <!-- contents page -->
+  <main class="contents" id="work">
+    <div class="projects">
+
+      <a class="project" href="#" data-speed="0">
+        <div class="head">
+          <span class="num vp" data-from="700" data-to="900" data-radius="90" data-pull="0.06">01</span>
+          <h2 class="title vp" data-from="700" data-to="900" data-radius="110" data-pull="0.06">isogu</h2>
+        </div>
+        <div class="frame">
+          <div class="media">
+            <!-- swap this placeholder for: <img src="assets/isogu.jpg" alt="..."> -->
+            <div class="ph" role="img" aria-label="isogu image placeholder"></div>
+          </div>
+        </div>
+        <p class="desc">Physical prototyping, Fusion360 CAD, 3D printing, brand design, CMF design</p>
+      </a>
+
+      <a class="project" href="#" data-speed="0.09">
+        <div class="head">
+          <span class="num vp" data-from="700" data-to="900" data-radius="90" data-pull="0.06">02</span>
+          <h2 class="title vp" data-from="700" data-to="900" data-radius="110" data-pull="0.06">kove</h2>
+        </div>
+        <div class="frame">
+          <div class="media">
+            <!-- swap this placeholder for: <img src="assets/kove.jpg" alt="..."> -->
+            <div class="ph" role="img" aria-label="kove image placeholder"></div>
+          </div>
+        </div>
+        <p class="desc">Design thinking, rapid prototyping, woodworking</p>
+      </a>
+
     </div>
-  </header>
+  </main>
 
   <script src="https://cdn.jsdelivr.net/npm/lenis@1.1.20/dist/lenis.min.js"></script>
   <script src="script.js"></script>

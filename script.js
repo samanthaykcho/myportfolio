@@ -127,3 +127,32 @@ function updateVideoBlur() {
   requestAnimationFrame(updateVideoBlur);
 }
 requestAnimationFrame(updateVideoBlur);
+
+// ---------- Contents page ----------
+const projects = [...document.querySelectorAll(".project")];
+
+// Reveal each project the first time it scrolls into view.
+const revealer = new IntersectionObserver((entries) => {
+  for (const e of entries) {
+    if (e.isIntersecting) { e.target.classList.add("in"); revealer.unobserve(e.target); }
+  }
+}, { threshold: 0.25 });
+projects.forEach((p) => revealer.observe(p));
+
+// Parallax: each project drifts at its own speed (data-speed) so the two
+// columns slide past each other as you scroll.
+projects.forEach((p) => { p.dy = 0; });
+function updateParallax() {
+  const vh = window.innerHeight;
+  for (const p of projects) {
+    const speed = Number(p.dataset.speed) || 0;
+    if (!speed) continue;
+    const r = p.getBoundingClientRect();
+    const restCenter = r.top + r.height / 2 - p.dy;   // where it would sit with no shift
+    p.dy = (restCenter - vh / 2) * speed;
+    p.style.transform = `translate3d(0, ${p.dy.toFixed(1)}px, 0)`;
+  }
+}
+lenis.on("scroll", updateParallax);
+window.addEventListener("resize", updateParallax);
+updateParallax();

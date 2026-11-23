@@ -10,9 +10,10 @@ body {
   color: #fff;
   font-family: "acumin-variable", "Acumin Variable Concept", system-ui, sans-serif;
   -webkit-font-smoothing: antialiased;
-  /* extra height so there is room to scroll */
-  min-height: 160vh;
 }
+
+/* title page: tall so the hero stays pinned while the contents slide up over it */
+.intro { height: 160vh; }
 
 /* ---------- video background ---------- */
 .bg {
@@ -94,3 +95,139 @@ body {
 
 /* one span per letter (created by script.js) */
 .vp .ch { display: inline-block; white-space: pre; }
+
+/* ---------- contents page ---------- */
+:root {
+  --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+  --ink: #111;
+}
+
+/* a white sheet that slides up over the pinned title page */
+.contents {
+  position: relative;
+  z-index: 2;
+  margin-top: -60vh;
+  background: #fff;
+  color: var(--ink);
+  padding: 22vh 0 26vh;
+}
+
+/* ---- tide line (switched off): add class="tide-line" to <main class="contents"> to bring it back ---- */
+.contents.tide-line {
+  overflow-x: clip;                                  /* the wave is wider than the screen */
+  box-shadow: 0 -30px 60px rgba(255, 255, 255, 0.3); /* soft haze above the tide line */
+}
+
+/* one long, low swell: solid white, continues straight into the sheet */
+.contents.tide-line::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: calc(100% - 1px);
+  width: calc(100% + 1200px);
+  height: 60px;
+  pointer-events: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1200 60' preserveAspectRatio='none'%3E%3Cpath d='M0 30 C200 18 400 18 600 30 S1000 42 1200 30 V60 H0 Z' fill='%23fff'/%3E%3C/svg%3E");
+  background-size: 1200px 60px;
+  background-repeat: repeat-x;
+  animation: tide 60s linear infinite;
+}
+
+@keyframes tide { to { transform: translateX(-1200px); } }
+
+.projects {
+  width: min(1100px, 86vw);
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  column-gap: 8vw;
+  align-items: start;
+}
+
+/* the second project sits lower so the page isn't a flat row */
+.project:nth-child(2) { margin-top: 16vh; }
+
+.project {
+  display: block;
+  color: inherit;
+  text-decoration: none;
+  will-change: transform;
+  transition: opacity 300ms var(--ease-out);
+}
+
+.contents .vp { font-weight: 700; }
+
+.head {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-bottom: 1.6rem;
+  font-size: clamp(1.5rem, 2.6vw, 2.4rem);
+  line-height: 1;
+  letter-spacing: -0.01em;
+  white-space: nowrap;
+}
+
+/* frame carries the shadow; media carries the reveal + hover lift */
+.frame {
+  aspect-ratio: 1 / 1;
+  filter: drop-shadow(10px 10px 12px rgba(0, 0, 0, 0.28));
+}
+
+.media {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  transition: transform 450ms var(--ease-out);
+}
+
+.media img,
+.ph {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* placeholder until the real images arrive */
+.ph {
+  background:
+    linear-gradient(135deg, rgba(52, 122, 174, 0.16), rgba(52, 122, 174, 0.04)),
+    #eef1f4;
+}
+
+.desc {
+  margin-top: 1.6rem;
+  max-width: 34ch;
+  font-size: clamp(0.85rem, 1.05vw, 1rem);
+  line-height: 1.4;
+  font-weight: 500;
+}
+
+/* ---- scroll reveal: image wipes open, text rises ---- */
+.project .head,
+.project .desc {
+  opacity: 0;
+  transform: translateY(18px);
+  transition: opacity 700ms var(--ease-out), transform 700ms var(--ease-out);
+}
+.project .media {
+  clip-path: inset(0 0 100% 0);
+  transition: clip-path 1000ms var(--ease-out), transform 450ms var(--ease-out);
+}
+.project .desc { transition-delay: 180ms; }
+
+.project.in .head,
+.project.in .desc { opacity: 1; transform: none; }
+.project.in .media { clip-path: inset(0 0 0 0); }
+
+/* ---- hover: lift the image, dim the other project ---- */
+@media (hover: hover) and (pointer: fine) {
+  .project.in:hover .media { transform: translate(-6px, -6px); }
+  .projects:has(.project:hover) .project:not(:hover) { opacity: 0.45; }
+}
+
+@media (max-width: 720px) {
+  .projects { grid-template-columns: 1fr; row-gap: 14vh; }
+  .project:nth-child(2) { margin-top: 0; }
+}
