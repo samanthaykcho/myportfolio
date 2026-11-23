@@ -384,3 +384,14 @@ body {
 @media (hover: hover) and (pointer: fine) {
   .project.in:hover .cutout { transform: translate(-11px, -11px); }
 }
+
+/* ---------- views (home / about) ---------- */
+.view[hidden] { display: none; }
+body { overflow-x: clip; } /* the sliding views never cause sideways scrolling */
+
+/* ---------- keep the page width steady during view transitions ---------- */
+/* always reserve room for the scrollbar, even on the short bio view */
+html { scrollbar-gutter: stable; }
+/* Lenis hides the scrollbar while it's paused (overflow: clip); keep it showing.
+   Lenis still blocks wheel/touch scrolling during the transition itself. */
+html.lenis.lenis-stopped { overflow: auto; }

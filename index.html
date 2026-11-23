@@ -17,66 +17,115 @@
     </filter>
   </svg>
 
-  <!-- background: slowed, blurred aquarium video, tinted blue, with film grain -->
+  <!-- background: slowed, blurred aquarium video, tinted blue, with film grain.
+       Shared by both views, so it keeps playing when you switch between them. -->
   <div class="bg" aria-hidden="true">
     <video id="bg-video" src="assets/aquarium.mp4" muted loop playsinline autoplay preload="auto"></video>
     <div class="bg-tint"></div>
     <div class="bg-grain"></div>
   </div>
 
-  <a class="home" href="index.html" aria-label="back to home"></a>
+  <a class="home" href="#" aria-label="back to home"></a>
 
   <nav class="nav" aria-label="main">
-    <a class="vp" href="index.html#work" data-from="600" data-to="900" data-radius="80" data-pull="0.1">work</a>
-    <a class="vp" href="about.html" data-from="600" data-to="900" data-radius="80" data-pull="0.1">about</a>
+    <a class="vp" id="nav-work" href="#work" data-from="600" data-to="900" data-radius="80" data-pull="0.1">work</a>
+    <a class="vp" id="nav-about" href="#about" data-from="600" data-to="900" data-radius="80" data-pull="0.1">about</a>
   </nav>
 
-  <!-- title page: stays pinned while the contents page slides up over it -->
-  <div class="intro">
-    <header class="hero">
-      <div class="lockup" id="lockup">
-        <h1 class="vp name" data-from="600" data-to="800" data-radius="130" data-pull="0.1">samantha cho</h1>
-        <p class="vp tagline" id="tagline" data-from="400" data-to="700" data-radius="90" data-pull="0.08">i love making things work well and look cool!</p>
+  <!-- ===================== home view ===================== -->
+  <div class="view view--home" id="home-view">
+
+    <!-- title page: stays pinned while the contents page slides up over it -->
+    <div class="intro">
+      <header class="hero">
+        <div class="lockup" id="lockup">
+          <h1 class="vp name" data-from="600" data-to="800" data-radius="130" data-pull="0.1">samantha cho</h1>
+          <p class="vp tagline" id="tagline" data-from="400" data-to="700" data-radius="90" data-pull="0.08">i love making things work well and look cool!</p>
+        </div>
+      </header>
+    </div>
+
+    <!-- contents page -->
+    <main class="contents" id="work">
+      <div class="projects">
+
+        <a class="project" href="#" data-speed="0">
+          <div class="head">
+            <span class="num vp" data-from="700" data-to="900" data-radius="90" data-pull="0.06">01</span>
+            <h2 class="title vp" data-from="700" data-to="900" data-radius="110" data-pull="0.06">isogu</h2>
+          </div>
+          <div class="frame">
+            <div class="media">
+              <img src="assets/isogu.jpg" alt="Hands tipping the silver isogu tin over a blue flower-embossed bowl" loading="lazy" decoding="async">
+            </div>
+            <!-- the lid, cut out so it sits over the frame's corner -->
+            <img class="cutout cutout--lid" src="assets/isogu-lid-cutout.webp" alt="" aria-hidden="true" loading="lazy" decoding="async">
+          </div>
+          <p class="desc">Physical prototyping, Fusion360 CAD, 3D printing, brand design, CMF design</p>
+        </a>
+
+        <a class="project" href="#" data-speed="0.09">
+          <div class="head">
+            <span class="num vp" data-from="700" data-to="900" data-radius="90" data-pull="0.06">02</span>
+            <h2 class="title vp" data-from="700" data-to="900" data-radius="110" data-pull="0.06">kove</h2>
+          </div>
+          <div class="frame">
+            <div class="media">
+              <img src="assets/kove.jpg" alt="A pile of hand-carved wooden spoons, forks and knives" loading="lazy" decoding="async">
+            </div>
+            <!-- the whole pile, cut out and lined up so the spoons spill past the frame -->
+            <img class="cutout cutout--kove" src="assets/kove-cutout.webp" alt="" aria-hidden="true" loading="lazy" decoding="async">
+          </div>
+          <p class="desc">Design thinking, rapid prototyping, woodworking</p>
+        </a>
+
       </div>
-    </header>
+    </main>
   </div>
 
-  <!-- contents page -->
-  <main class="contents" id="work">
-    <div class="projects">
-
-      <a class="project" href="#" data-speed="0">
-        <div class="head">
-          <span class="num vp" data-from="700" data-to="900" data-radius="90" data-pull="0.06">01</span>
-          <h2 class="title vp" data-from="700" data-to="900" data-radius="110" data-pull="0.06">isogu</h2>
-        </div>
+  <!-- ===================== about view ===================== -->
+  <!-- slides in from the right when you click "about" (see the router in script.js) -->
+  <div class="view view--about" id="about-view" hidden>
+    <main class="about">
+      <figure class="about-photo" data-reveal>
         <div class="frame">
           <div class="media">
-            <img src="assets/isogu.jpg" alt="Hands tipping the silver isogu tin over a blue flower-embossed bowl" loading="lazy" decoding="async">
+            <img src="assets/me.jpg" alt="Samantha Cho standing by a white iron fence under yellow blossoms" decoding="async">
           </div>
-          <!-- the lid, cut out so it sits over the frame's corner -->
-          <img class="cutout cutout--lid" src="assets/isogu-lid-cutout.webp" alt="" aria-hidden="true" loading="lazy" decoding="async">
         </div>
-        <p class="desc">Physical prototyping, Fusion360 CAD, 3D printing, brand design, CMF design</p>
-      </a>
+      </figure>
 
-      <a class="project" href="#" data-speed="0.09">
-        <div class="head">
-          <span class="num vp" data-from="700" data-to="900" data-radius="90" data-pull="0.06">02</span>
-          <h2 class="title vp" data-from="700" data-to="900" data-radius="110" data-pull="0.06">kove</h2>
-        </div>
-        <div class="frame">
-          <div class="media">
-            <img src="assets/kove.jpg" alt="A pile of hand-carved wooden spoons, forks and knives" loading="lazy" decoding="async">
-          </div>
-          <!-- the whole pile, cut out and lined up so the spoons spill past the frame -->
-          <img class="cutout cutout--kove" src="assets/kove-cutout.webp" alt="" aria-hidden="true" loading="lazy" decoding="async">
-        </div>
-        <p class="desc">Design thinking, rapid prototyping, woodworking</p>
-      </a>
+      <div class="about-text">
+        <h2 class="vp about-title" data-from="700" data-to="900" data-radius="120" data-pull="0.06">hi, i'm sam!</h2>
 
-    </div>
-  </main>
+        <p class="lead" data-reveal>
+          I’m a second year industrial design student at the University of Illinois Urbana-Champaign, having lots of fun thinking and designing for the user.
+        </p>
+        <p data-reveal>
+          I was born and raised in Kuala Lumpur, Malaysia, and have spent many winters and summers in Taipei visiting family. Now, I’m in an exciting new chapter of life in Champaign, Illinois, exploring the vastly different everyday and design culture of the USA!
+        </p>
+
+        <h3 class="label" data-reveal>skills</h3>
+        <ul class="tags" data-reveal>
+          <li>Physical prototyping</li>
+          <li>Fusion360 CAD</li>
+          <li>3D printing</li>
+          <li>Brand design</li>
+          <li>CMF design</li>
+          <li>Design thinking</li>
+          <li>Rapid prototyping</li>
+          <li>Woodworking</li>
+        </ul>
+
+        <h3 class="label" data-reveal>contact</h3>
+        <ul class="links" data-reveal>
+          <li><a href="#">email (add yours)</a></li>
+          <li><a href="#">linkedin (add yours)</a></li>
+          <li><a href="#">instagram (add yours)</a></li>
+        </ul>
+      </div>
+    </main>
+  </div>
 
   <script src="https://cdn.jsdelivr.net/npm/lenis@1.1.20/dist/lenis.min.js"></script>
   <script src="script.js"></script>

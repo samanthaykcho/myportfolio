@@ -95,8 +95,7 @@ updateRounding();
 // Wait for Acumin to load, then pin the left edge so growing letters
 // don't shift the whole block around.
 document.fonts.ready.then(() => {
-  const lockup = document.getElementById("lockup");
-  if (lockup) lockup.style.width = lockup.getBoundingClientRect().width + "px";
+  pinLockup();
   requestAnimationFrame(animate);
 });
 
@@ -148,6 +147,7 @@ document.querySelectorAll("[data-reveal]").forEach((el) => revealer.observe(el))
 // columns slide past each other as you scroll.
 projects.forEach((p) => { p.dy = 0; });
 function updateParallax() {
+  if (document.getElementById("home-view")?.hidden) return; // about view is showing
   const vh = window.innerHeight;
   for (const p of projects) {
     const speed = Number(p.dataset.speed) || 0;
@@ -167,31 +167,144 @@ const nav = document.querySelector(".nav");
 const contentsSheet = document.querySelector(".contents");
 const homeIcon = document.querySelector(".home");
 
-// On the home page the ray glides back to the top instead of reloading.
-if (homeIcon && contentsSheet) {
-  homeIcon.addEventListener("click", (e) => {
-    e.preventDefault();
-    lenis.scrollTo(0);
-  });
+const homeView = document.getElementById("home-view");
+const aboutView = document.getElementById("about-view");
+const navAbout = document.getElementById("nav-about");
+const isAbout = () => !aboutView.hidden;
+
+// Pin the name block's width so letters getting heavier don't shift it around.
+// Measured only while the home view is visible (a hidden view measures 0 wide),
+// and stored in em so it scales with the text when the window is resized.
+function pinLockup() {
+  const lockup = document.getElementById("lockup");
+  if (!lockup || homeView.hidden) return;
+  lockup.style.width = "";
+  const size = parseFloat(getComputedStyle(lockup).fontSize);
+  lockup.style.width = `${lockup.getBoundingClientRect().width / size}em`;
 }
 
 // The nav turns dark when it sits over the white contents page.
 function updateNav() {
-  if (!nav || !contentsSheet) return;
-  const onLight = contentsSheet.getBoundingClientRect().top <= 40;
+  const onLight = !isAbout() && contentsSheet.getBoundingClientRect().top <= 40;
   nav.classList.toggle("on-light", onLight);
-  if (homeIcon) homeIcon.classList.toggle("on-light", onLight);
+  homeIcon.classList.toggle("on-light", onLight);
 }
 lenis.on("scroll", updateNav);
 window.addEventListener("resize", updateNav);
-updateNav();
 
-// On the home page, "work" glides down to the contents instead of jumping.
-if (contentsSheet) {
-  document.querySelectorAll('a[href="index.html#work"]').forEach((a) => {
-    a.addEventListener("click", (e) => {
-      e.preventDefault();
-      lenis.scrollTo(contentsSheet);
-    });
-  });
+// "about" sits a little heavier at rest while the about view is showing.
+function markCurrent() {
+  const about = isAbout();
+  if (about) navAbout.setAttribute("aria-current", "page");
+  else navAbout.removeAttribute("aria-current");
+  const g = groups.find((g) => g.el === navAbout);
+  if (g) g.from = about ? 800 : 600;
+  document.title = about ? "about – samantha cho" : "samantha cho";
 }
+
+// ---------- Router: slide between the home and about views ----------
+// The two views live in one page so the background video never restarts.
+// Going to about: home slides out to the left, about slides in from the right.
+// Going home: the reverse.
+const SLIDE = { duration: 900, easing: "cubic-bezier(0.77, 0, 0.175, 1)", fill: "forwards" };
+let busy = false;
+let savedHomeY = 0;
+
+function fixInPlace(el, top) {
+  Object.assign(el.style, { position: "fixed", top: `${top}px`, left: "0", right: "0", zIndex: "1" });
+}
+function release(el) {
+  el.getAnimations().forEach((a) => a.cancel());
+  Object.assign(el.style, { position: "", top: "", left: "", right: "", zIndex: "" });
+}
+function jumpTo(y) {
+  lenis.resize();
+  lenis.scrollTo(y, { immediate: true, force: true });
+}
+function homeTarget(hash) {
+  if (hash === "#work") return contentsSheet.getBoundingClientRect().top + window.scrollY;
+  return 0;
+}
+function refresh() { updateFade(); updateNav(); updateParallax(); }
+
+async function showAbout(animate) {
+  if (isAbout()) return;
+  savedHomeY = window.scrollY;
+  aboutView.hidden = false;
+  markCurrent();
+  if (!animate) { homeView.hidden = true; jumpTo(0); refresh(); return; }
+
+  busy = true; lenis.stop();
+  fixInPlace(aboutView, 0);
+  const out = homeView.animate([{ transform: "none" }, { transform: "translateX(-100%)" }], SLIDE);
+
+  // Each bio element slides in on its own, in reading order. The gaps shrink as
+  // it goes (uneven, not a metronome), so it reads as one swoop, not a queue.
+  const items = [...aboutView.querySelectorAll(".about-photo, .about-text > *")];
+  const delays = [120, 200, 270, 325, 370, 405, 435, 460];
+  items.forEach((el, i) => {
+    if (el.hasAttribute("data-reveal")) el.classList.add("in"); // the slide is their entrance
+    el.animate(
+      [{ transform: "translateX(70vw)", opacity: 0 }, { transform: "none", opacity: 1 }],
+      { duration: 1000, delay: delays[Math.min(i, delays.length - 1)],
+        easing: "cubic-bezier(0.16, 1, 0.3, 1)", fill: "backwards" }
+    );
+  });
+
+  await out.finished;                           // free the page once home is gone; items keep settling
+  homeView.hidden = true;
+  jumpTo(0);
+  release(homeView); release(aboutView);
+  lenis.start(); busy = false; refresh();
+}
+
+async function showHome(hash, fromHistory, animate) {
+  if (!isAbout()) { lenis.scrollTo(homeTarget(hash)); return; }  // already home: just glide
+  fixInPlace(aboutView, -window.scrollY);       // freeze about where it is
+  homeView.hidden = false;
+  pinLockup();                                  // measure now that home is visible again
+  const y = fromHistory && !hash ? savedHomeY : homeTarget(hash);
+  jumpTo(y);
+  if (!animate) { aboutView.hidden = true; release(aboutView); markCurrent(); refresh(); return; }
+
+  busy = true; lenis.stop();
+  const inn = homeView.animate([{ transform: "translateX(-100%)" }, { transform: "none" }], SLIDE);
+  const out = aboutView.animate([{ transform: "none" }, { transform: "translateX(100%)" }], SLIDE);
+  aboutView.hidden = false;
+  await Promise.all([out.finished, inn.finished]);
+  aboutView.hidden = true;
+  release(homeView); release(aboutView);
+  markCurrent();
+  lenis.start(); busy = false; refresh();
+}
+
+function route(hash, fromHistory, animate = true) {
+  if (hash === "#about") showAbout(animate);
+  else showHome(hash, fromHistory, animate);
+}
+
+// nav links, the ray icon: change the URL and slide, without reloading
+document.querySelectorAll('.nav a, a.home').forEach((a) => {
+  a.addEventListener("click", (e) => {
+    e.preventDefault();
+    if (busy) return;
+    const hash = a.getAttribute("href") === "#" ? "" : a.getAttribute("href");
+    if (hash !== location.hash) history.pushState(null, "", hash || location.pathname);
+    route(hash, false);
+  });
+});
+
+// placeholder links (projects, contact) don't go anywhere yet; keep them from
+// changing the URL and sending you back to the top
+document.addEventListener("click", (e) => {
+  const a = e.target.closest('a[href="#"]');
+  if (a && !a.matches(".home")) e.preventDefault();
+});
+
+// browser back / forward buttons
+window.addEventListener("popstate", () => { if (!busy) route(location.hash, true); });
+
+// opened directly at index.html#about (or via the old about.html link)
+if (location.hash === "#about") route("#about", false, false);
+markCurrent();
+updateNav();
