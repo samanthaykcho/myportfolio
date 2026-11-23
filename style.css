@@ -1,0 +1,48 @@
+:root {
+  --blue: #3b89c4;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  background: var(--blue);
+  color: #fff;
+  font-family: "acumin-variable", "Acumin Variable Concept", system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  /* extra height so there is room to scroll */
+  min-height: 160vh;
+}
+
+.hero {
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  display: grid;
+  place-items: center;
+}
+
+/* name and tagline together; font-size here scales both */
+.lockup {
+  font-size: clamp(2.5rem, 7vw, 9rem);
+  white-space: nowrap;
+}
+
+.vp { font-weight: 600; }
+
+.name {
+  display: inline-block;
+  filter: url(#round);
+  font-size: 1em;
+  line-height: 1;
+  letter-spacing: -0.02em;
+}
+
+.tagline {
+  font-size: 0.165em;
+  margin-top: -0.25em;
+  letter-spacing: 0;
+  opacity: 0;
+}
+
+/* one span per letter (created by script.js) */
+.vp .ch { display: inline-block; white-space: pre; }

@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>samantha cho</title>
+  <link rel="stylesheet" href="https://use.typekit.net/tfd3zvu.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/lenis@1.1.20/dist/lenis.css">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <!-- rounds off the corners of the name's letters (strength is set in script.js) -->
+  <svg width="0" height="0" style="position:absolute" aria-hidden="true">
+    <filter id="round" x="-5%" y="-20%" width="110%" height="140%" color-interpolation-filters="sRGB">
+      <feGaussianBlur id="round-blur" in="SourceGraphic" stdDeviation="2" result="b"/>
+      <feColorMatrix in="b" type="matrix" values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 24 -10"/>
+    </filter>
+  </svg>
+
+  <header class="hero">
+    <div class="lockup" id="lockup">
+      <h1 class="vp name" data-from="600" data-to="800" data-radius="130" data-pull="0.1">samantha cho</h1>
+      <p class="vp tagline" id="tagline" data-from="400" data-to="700" data-radius="90" data-pull="0.08">i love making things work well and look cool!</p>
+    </div>
+  </header>
+
+  <script src="https://cdn.jsdelivr.net/npm/lenis@1.1.20/dist/lenis.min.js"></script>
+  <script src="script.js"></script>
+</body>
+</html>
