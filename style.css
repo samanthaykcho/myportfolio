@@ -1,5 +1,6 @@
 :root {
-  --blue: #3b89c4;
+  /* slightly deeper than before so white text reaches 4.5:1 contrast (WCAG AA) */
+  --blue: #347aae;
 }
 
 * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -38,7 +39,9 @@ body {
 }
 
 .tagline {
-  font-size: 0.165em;
+  /* never smaller than 12.8px, even on phones */
+  font-size: max(0.165em, 0.8rem);
+  white-space: normal;
   margin-top: -0.25em;
   letter-spacing: 0;
   opacity: 0;
