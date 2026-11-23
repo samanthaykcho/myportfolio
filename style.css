@@ -395,3 +395,23 @@ html { scrollbar-gutter: stable; }
 /* Lenis hides the scrollbar while it's paused (overflow: clip); keep it showing.
    Lenis still blocks wheel/touch scrolling during the transition itself. */
 html.lenis.lenis-stopped { overflow: auto; }
+
+/* ---------- bio highlights ---------- */
+/* bold + a soft deep-blue marker band that sweeps in once, after the paragraph
+   arrives. Dark (not light) so the white words get MORE readable, not less. */
+.hl {
+  color: inherit;
+  font-weight: 700;
+  padding: 0 0.12em;
+  margin: 0 -0.04em;
+  background-color: transparent;
+  background-image: linear-gradient(rgba(8, 40, 72, 0.5), rgba(8, 40, 72, 0.5));
+  background-repeat: no-repeat;
+  background-position: 0 50%;   /* covers the whole height of the letters */
+  background-size: 0% 100%;
+  -webkit-box-decoration-break: clone;
+          box-decoration-break: clone; /* looks right if a highlight wraps lines */
+  transition: background-size 900ms var(--ease-out);
+  transition-delay: calc(750ms + var(--d, 0) * 320ms);
+}
+[data-reveal].in .hl { background-size: 100% 100%; }
