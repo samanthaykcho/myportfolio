@@ -360,3 +360,27 @@ body {
   60%  { background-position-x: 75%; }
   80%  { background-position-x: 100%; }
 }
+
+/* ---------- spill-out cut-outs on the contents page ---------- */
+.frame { position: relative; }
+.contents { overflow-x: clip; } /* cut-outs reach past the frames; never let them widen the page */
+
+.cutout {
+  position: absolute;
+  max-width: none;
+  height: auto;
+  pointer-events: none;
+  /* appears just after the photo wipes open, and lifts further than the photo on hover */
+  opacity: 0;
+  transform: translateY(14px);
+  transition: opacity 700ms var(--ease-out) 300ms, transform 600ms var(--ease-out);
+}
+.project.in .cutout { opacity: 1; transform: none; }
+
+/* positions are percentages of the frame, matched to how the images were cropped */
+.cutout--kove { left: -26.667%; top: -26.667%; width: 153.333%; }
+.cutout--lid  { left: -14.6%;   top: 70.9%;    width: 30%; }
+
+@media (hover: hover) and (pointer: fine) {
+  .project.in:hover .cutout { transform: translate(-11px, -11px); }
+}
