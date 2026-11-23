@@ -9,6 +9,7 @@ requestAnimationFrame(raf);
 // ---------- Tagline fades in once the user starts scrolling ----------
 const tagline = document.getElementById("tagline");
 function updateFade() {
+  if (!tagline) return; // only on the home page
   tagline.style.opacity = Math.min(window.scrollY / (window.innerHeight * 0.25), 1);
 }
 lenis.on("scroll", updateFade);
@@ -83,7 +84,9 @@ function animate() {
 
 // Corner rounding on the name scales with the text size.
 function updateRounding() {
-  const size = parseFloat(getComputedStyle(document.querySelector(".name")).fontSize);
+  const name = document.querySelector(".name");
+  if (!name) return; // only on the home page
+  const size = parseFloat(getComputedStyle(name).fontSize);
   document.getElementById("round-blur").setAttribute("stdDeviation", (size * 0.016).toFixed(2));
 }
 window.addEventListener("resize", updateRounding);
@@ -93,7 +96,7 @@ updateRounding();
 // don't shift the whole block around.
 document.fonts.ready.then(() => {
   const lockup = document.getElementById("lockup");
-  lockup.style.width = lockup.getBoundingClientRect().width + "px";
+  if (lockup) lockup.style.width = lockup.getBoundingClientRect().width + "px";
   requestAnimationFrame(animate);
 });
 
@@ -138,6 +141,8 @@ const revealer = new IntersectionObserver((entries) => {
   }
 }, { threshold: 0.25 });
 projects.forEach((p) => revealer.observe(p));
+// anything marked data-reveal (used on the about page) fades up the same way
+document.querySelectorAll("[data-reveal]").forEach((el) => revealer.observe(el));
 
 // Parallax: each project drifts at its own speed (data-speed) so the two
 // columns slide past each other as you scroll.
@@ -156,3 +161,37 @@ function updateParallax() {
 lenis.on("scroll", updateParallax);
 window.addEventListener("resize", updateParallax);
 updateParallax();
+
+// ---------- Navigation ----------
+const nav = document.querySelector(".nav");
+const contentsSheet = document.querySelector(".contents");
+const homeIcon = document.querySelector(".home");
+
+// On the home page the ray glides back to the top instead of reloading.
+if (homeIcon && contentsSheet) {
+  homeIcon.addEventListener("click", (e) => {
+    e.preventDefault();
+    lenis.scrollTo(0);
+  });
+}
+
+// The nav turns dark when it sits over the white contents page.
+function updateNav() {
+  if (!nav || !contentsSheet) return;
+  const onLight = contentsSheet.getBoundingClientRect().top <= 40;
+  nav.classList.toggle("on-light", onLight);
+  if (homeIcon) homeIcon.classList.toggle("on-light", onLight);
+}
+lenis.on("scroll", updateNav);
+window.addEventListener("resize", updateNav);
+updateNav();
+
+// On the home page, "work" glides down to the contents instead of jumping.
+if (contentsSheet) {
+  document.querySelectorAll('a[href="index.html#work"]').forEach((a) => {
+    a.addEventListener("click", (e) => {
+      e.preventDefault();
+      lenis.scrollTo(contentsSheet);
+    });
+  });
+}
