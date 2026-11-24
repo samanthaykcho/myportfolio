@@ -1,6 +1,6 @@
 # Samantha Cho — industrial design portfolio
 
-Static site (plain HTML/CSS/JS, no build step). Repo: https://github.com/samanthaykcho/portfolio2 (branch `main`).
+Static site (plain HTML/CSS/JS, no build step). Repo: https://github.com/samanthaykcho/myportfolio (branch `main`; renamed from `portfolio2`). Hosted on GitHub Pages: https://samanthaykcho.github.io/myportfolio/ (deploys from `main`, root).
 Open `index.html` directly in a browser to view it.
 
 ## Working with Sam

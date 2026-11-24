@@ -142,62 +142,52 @@ function updateVideoBlur() {
 requestAnimationFrame(updateVideoBlur);
 
 // ---------- Water ripples ----------
-// The video is redrawn on a WebGL canvas through a rippling water surface.
-// Moving the cursor leaves a gentle wake; clicking/tapping drops a splash.
-// If WebGL isn't available (or the browser won't share the video's pixels,
-// e.g. when index.html is opened straight from disk), the plain video stays.
+// The video is redrawn on a WebGL canvas (#bg-water) through a simulated water
+// surface, so the footage warps softly around the cursor — no light or lines
+// drawn on top. Moving leaves a short wake; clicking/tapping drops a splash.
+// Needs the browser to share the video's pixels, so when index.html is opened
+// straight from disk the plain video stays and there are no ripples.
 (function waterRipples() {
+  const bg = document.querySelector(".bg");
   const canvas = document.getElementById("bg-water");
-  const bg = canvas.parentElement;
 
-  const CELL = 6;          // css px per simulation cell (bigger = broader waves)
-  const DAMPING = 0.984;   // how quickly ripples fade (closer to 1 = longer)
-  const REFRACT = 0.05;    // how much the waves bend the footage
-  const SHINE = 0.55;      // light glinting off the wave slopes
-  const TRAIL_AMP = 0.22;  // strength of the cursor wake
-  const SPLASH_AMP = 1.1;  // strength of a click splash
+  const CELL = 6;          // css px per simulation cell (bigger = broader, smoother waves)
+  const DAMPING = 0.95;    // how quickly ripples fade (closer to 1 = longer, spreads further)
+  const REFRACT = 0.035;   // how much the waves bend the footage
+  const TRAIL_AMP = 0.3;   // strength of the cursor wake
+  const SPLASH_AMP = 1.2;  // strength of a click splash
   const ZOOM = 1.12;       // must match the scale() on .bg canvas in style.css
 
-  const gl = canvas.getContext("webgl", { alpha: false, antialias: false, premultipliedAlpha: false });
+  const gl = canvas.getContext("webgl", { alpha: false, antialias: false });
   if (!gl) return;
 
-  // --- shaders ---
-  const vsSrc = `
+  const compile = (type, src) => {
+    const s = gl.createShader(type);
+    gl.shaderSource(s, src);
+    gl.compileShader(s);
+    return gl.getShaderParameter(s, gl.COMPILE_STATUS) ? s : null;
+  };
+  const vs = compile(gl.VERTEX_SHADER, `
     attribute vec2 a;
     varying vec2 vUv;
     void main() {
       vUv = vec2(a.x * 0.5 + 0.5, 0.5 - a.y * 0.5); // y = 0 at the top
       gl_Position = vec4(a, 0.0, 1.0);
-    }`;
-  const fsSrc = `
+    }`);
+  // Slopes arrive as a 2-channel texture (x in .r, y in .a), centred on 0.5.
+  const fs = compile(gl.FRAGMENT_SHADER, `
     precision mediump float;
+    uniform sampler2D uSlope;
     uniform sampler2D uVideo;
-    uniform sampler2D uHeight;
-    uniform vec2 uTexel;
     uniform vec2 uCover;
     uniform float uRefract;
-    uniform float uShine;
     varying vec2 vUv;
     void main() {
-      float l = texture2D(uHeight, vUv - vec2(uTexel.x, 0.0)).r;
-      float r = texture2D(uHeight, vUv + vec2(uTexel.x, 0.0)).r;
-      float u = texture2D(uHeight, vUv - vec2(0.0, uTexel.y)).r;
-      float d = texture2D(uHeight, vUv + vec2(0.0, uTexel.y)).r;
-      vec2 slope = vec2(r - l, d - u);
+      vec4 t = texture2D(uSlope, vUv);
+      vec2 slope = vec2(t.r, t.a) * 2.0 - 1.0;
       vec2 uv = (vUv - 0.5) * uCover + 0.5;   // object-fit: cover
-      vec3 c = texture2D(uVideo, uv + slope * uRefract).rgb;
-      c += max(0.0, -slope.x - slope.y) * uShine; // light from the top-left
-      gl_FragColor = vec4(c, 1.0);
-    }`;
-
-  function compile(type, src) {
-    const s = gl.createShader(type);
-    gl.shaderSource(s, src);
-    gl.compileShader(s);
-    return gl.getShaderParameter(s, gl.COMPILE_STATUS) ? s : null;
-  }
-  const vs = compile(gl.VERTEX_SHADER, vsSrc);
-  const fs = compile(gl.FRAGMENT_SHADER, fsSrc);
+      gl_FragColor = vec4(texture2D(uVideo, uv + slope * uRefract).rgb, 1.0);
+    }`);
   if (!vs || !fs) return;
   const prog = gl.createProgram();
   gl.attachShader(prog, vs);
@@ -206,37 +196,31 @@ requestAnimationFrame(updateVideoBlur);
   if (!gl.getProgramParameter(prog, gl.LINK_STATUS)) return;
   gl.useProgram(prog);
 
-  const buf = gl.createBuffer();
-  gl.bindBuffer(gl.ARRAY_BUFFER, buf);
+  gl.bindBuffer(gl.ARRAY_BUFFER, gl.createBuffer());
   gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1, -1, 1, -1, -1, 1, 1, 1]), gl.STATIC_DRAW);
   const aLoc = gl.getAttribLocation(prog, "a");
   gl.enableVertexAttribArray(aLoc);
   gl.vertexAttribPointer(aLoc, 2, gl.FLOAT, false, 0, 0);
+  gl.pixelStorei(gl.UNPACK_ALIGNMENT, 1);
 
-  const U = (n) => gl.getUniformLocation(prog, n);
-  const uTexel = U("uTexel"), uCover = U("uCover");
-  gl.uniform1i(U("uVideo"), 0);
-  gl.uniform1i(U("uHeight"), 1);
-  gl.uniform1f(U("uRefract"), REFRACT);
-  gl.uniform1f(U("uShine"), SHINE);
-
-  function makeTex(unit) {
-    const t = gl.createTexture();
+  const makeTex = (unit) => {
     gl.activeTexture(gl.TEXTURE0 + unit);
-    gl.bindTexture(gl.TEXTURE_2D, t);
+    gl.bindTexture(gl.TEXTURE_2D, gl.createTexture());
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
-    return t;
-  }
-  const videoTex = makeTex(0);
-  const heightTex = makeTex(1);
-  gl.pixelStorei(gl.UNPACK_ALIGNMENT, 1);
+  };
+  makeTex(0); // slopes
+  makeTex(1); // video
+  const U = (n) => gl.getUniformLocation(prog, n);
+  gl.uniform1i(U("uSlope"), 0);
+  gl.uniform1i(U("uVideo"), 1);
+  gl.uniform1f(U("uRefract"), REFRACT);
 
-  // --- water surface simulation (runs on the CPU at low resolution) ---
+  // --- water surface simulation (CPU, low resolution) ---
   let W = 0, H = 0, gw = 0, gh = 0;
-  let cur, prev, bytes;
+  let cur, prev, slopes;
 
   function resize() {
     W = window.innerWidth;
@@ -248,18 +232,17 @@ requestAnimationFrame(updateVideoBlur);
     gh = Math.ceil(H / CELL) + 2;
     cur = new Float32Array(gw * gh);
     prev = new Float32Array(gw * gh);
-    bytes = new Uint8Array(gw * gh).fill(128);
-    gl.uniform2f(uTexel, 1 / gw, 1 / gh);
-    uploadHeight();
+    slopes = new Uint8Array(gw * gh * 2).fill(128);
+    uploadSlopes();
     updateCover();
   }
 
   function updateCover() {
     const vw = bgVideo.videoWidth, vh = bgVideo.videoHeight;
-    if (!vw || !vh || !W) { gl.uniform2f(uCover, 1, 1); return; }
+    if (!vw || !vh || !W) { gl.uniform2f(U("uCover"), 1, 1); return; }
     const a = W / H, v = vw / vh;
-    if (a > v) gl.uniform2f(uCover, 1, v / a);
-    else gl.uniform2f(uCover, a / v, 1);
+    if (a > v) gl.uniform2f(U("uCover"), 1, v / a);
+    else gl.uniform2f(U("uCover"), a / v, 1);
   }
   bgVideo.addEventListener("loadedmetadata", updateCover);
 
@@ -274,13 +257,20 @@ requestAnimationFrame(updateVideoBlur);
     const t = cur; cur = prev; prev = t;
   }
 
-  function uploadHeight() {
-    for (let i = 0; i < cur.length; i++) {
-      const h = cur[i];
-      bytes[i] = h > 1 ? 255 : h < -1 ? 0 : (h * 127.5 + 127.5) | 0;
+  // Slopes are worked out here in full precision, then packed into bytes.
+  const pack = (s) => (s > 1 ? 255 : s < -1 ? 0 : (s * 127.5 + 127.5) | 0);
+  function uploadSlopes() {
+    for (let y = 0; y < gh; y++) {
+      for (let x = 0; x < gw; x++) {
+        const i = y * gw + x;
+        const sx = x > 0 && x < gw - 1 ? (cur[i + 1] - cur[i - 1]) * 0.5 : 0;
+        const sy = y > 0 && y < gh - 1 ? (cur[i + gw] - cur[i - gw]) * 0.5 : 0;
+        slopes[i * 2] = pack(sx);
+        slopes[i * 2 + 1] = pack(sy);
+      }
     }
-    gl.activeTexture(gl.TEXTURE1);
-    gl.texImage2D(gl.TEXTURE_2D, 0, gl.LUMINANCE, gw, gh, 0, gl.LUMINANCE, gl.UNSIGNED_BYTE, bytes);
+    gl.activeTexture(gl.TEXTURE0);
+    gl.texImage2D(gl.TEXTURE_2D, 0, gl.LUMINANCE_ALPHA, gw, gh, 0, gl.LUMINANCE_ALPHA, gl.UNSIGNED_BYTE, slopes);
   }
 
   // Push the surface down in a soft round dip around (cx, cy) in grid cells.
@@ -308,13 +298,15 @@ requestAnimationFrame(updateVideoBlur);
     if (e.pointerType === "touch") return; // touch gets splashes on tap instead
     const [gx, gy] = toGrid(e.clientX, e.clientY);
     if (lastX !== null) {
+      // Faster strokes make a stronger wake; drops are laid ~3 cells apart.
       const dist = Math.hypot(gx - lastX, gy - lastY);
-      const n = Math.min(12, Math.ceil(dist / 1.5)); // fill in fast movements
-      const amp = Math.min(TRAIL_AMP, 0.04 + dist * 0.03) / Math.max(1, n * 0.5);
+      const amp = TRAIL_AMP * Math.min(1, 0.4 + dist * 0.06);
+      const n = Math.min(12, Math.floor(dist / 3));
       for (let k = 1; k <= n; k++) {
         const t = k / n;
-        drop(lastX + (gx - lastX) * t, lastY + (gy - lastY) * t, 2.5, amp);
+        drop(lastX + (gx - lastX) * t, lastY + (gy - lastY) * t, 4, amp);
       }
+      if (n === 0) return; // tiny move: wait until it adds up to a full gap
     }
     lastX = gx; lastY = gy;
   }, { passive: true });
@@ -323,26 +315,28 @@ requestAnimationFrame(updateVideoBlur);
 
   window.addEventListener("pointerdown", (e) => {
     const [gx, gy] = toGrid(e.clientX, e.clientY);
-    drop(gx, gy, 5, SPLASH_AMP);
+    drop(gx, gy, 7, SPLASH_AMP);
   }, { passive: true });
 
   // --- render loop ---
   let lastVideoTime = -1, acc = 0, lastFrame = performance.now(), settled = true;
 
   function frame(now) {
-    // Copy a new video frame into the texture only when the video has moved on.
+    // Copy a new video frame into the texture when the video has moved on.
+    let fresh = false;
     if (bgVideo.readyState >= 2 && bgVideo.currentTime !== lastVideoTime) {
       lastVideoTime = bgVideo.currentTime;
-      gl.activeTexture(gl.TEXTURE0);
+      gl.activeTexture(gl.TEXTURE1);
       try {
         gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGB, gl.RGB, gl.UNSIGNED_BYTE, bgVideo);
       } catch (err) {
-        // Browser won't let WebGL read the video (e.g. opened from disk):
-        // give the plain video back and stop.
+        // Browser won't share the video (e.g. opened from disk): keep the
+        // plain video and stop.
         bg.classList.remove("water");
         blurTarget = bgVideo;
         return;
       }
+      fresh = true;
       if (!bg.classList.contains("water")) {
         updateCover();
         bg.classList.add("water");
@@ -354,23 +348,54 @@ requestAnimationFrame(updateVideoBlur);
     // Step the water at a fixed 60 steps/s so it behaves the same on any screen.
     acc += Math.min(100, now - lastFrame);
     lastFrame = now;
-    const active = now - lastInput < 5000; // waves have died out after ~5s
-    if (active) {
+    let moved = false;
+    if (now - lastInput < 3000) {          // waves have died out by then
       settled = false;
       while (acc >= 1000 / 60) { step(); acc -= 1000 / 60; }
-      uploadHeight();
+      uploadSlopes();
+      moved = true;
     } else {
       acc = 0;
-      if (!settled) { cur.fill(0); prev.fill(0); uploadHeight(); settled = true; }
+      if (!settled) { cur.fill(0); prev.fill(0); uploadSlopes(); settled = true; moved = true; }
     }
 
-    if (bg.classList.contains("water")) gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+    if ((fresh || moved) && bg.classList.contains("water")) gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
     requestAnimationFrame(frame);
   }
 
   resize();
-  window.addEventListener("resize", resize);
+  window.addEventListener("resize", () => { resize(); if (bg.classList.contains("water")) gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4); });
   requestAnimationFrame(frame);
+})();
+
+// ---------- Custom cursor ----------
+// A soft dot that replaces the arrow on mouse/trackpad. It grows into a ring
+// over anything clickable, squeezes when pressed, turns blue over the white
+// work sheet, and steps aside for the text cursor in form fields.
+(function customCursor() {
+  const dot = document.createElement("div");
+  dot.className = "cursor";
+  dot.setAttribute("aria-hidden", "true");
+  document.body.appendChild(dot);
+
+  const CLICKABLE = "a, button, label, summary, select, mark.hl, [role='button'], .project";
+  const TEXT = "input:not([type='checkbox']):not([type='radio']), textarea";
+
+  window.addEventListener("pointermove", (e) => {
+    if (e.pointerType === "touch") return;
+    document.documentElement.classList.add("has-cursor");
+    dot.style.transform = `translate(${e.clientX}px, ${e.clientY}px)`;
+    const t = e.target instanceof Element ? e.target : null;
+    dot.classList.toggle("hover", !!t?.closest(CLICKABLE));
+    dot.classList.toggle("text", !!t?.closest(TEXT));
+    dot.classList.toggle("light", !!t?.closest(".contents"));
+    dot.classList.add("shown");
+  }, { passive: true });
+
+  window.addEventListener("pointerdown", (e) => { if (e.pointerType !== "touch") dot.classList.add("down"); });
+  window.addEventListener("pointerup", () => dot.classList.remove("down"));
+  document.addEventListener("pointerleave", () => dot.classList.remove("shown"));
+  window.addEventListener("blur", () => dot.classList.remove("shown"));
 })();
 
 // ---------- Contents page ----------

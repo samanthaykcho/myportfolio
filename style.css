@@ -38,8 +38,71 @@ body {
 /* water ripples: once the canvas is drawing the video, it replaces the plain
    video (which keeps playing underneath as the canvas's source) */
 .bg canvas { display: none; }
-.bg.water canvas { display: block; }
+.bg.water #bg-water { display: block; }
 .bg.water video { opacity: 0; }
+
+/* ---------- custom cursor ---------- */
+/* only for mouse/trackpad: script.js adds .has-cursor on the first mouse move */
+html.has-cursor,
+html.has-cursor * { cursor: none !important; }
+html.has-cursor input:not([type="checkbox"]):not([type="radio"]),
+html.has-cursor textarea { cursor: text !important; }
+
+.cursor {
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 9999;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+.cursor.shown { opacity: 1; }
+
+/* the dot itself, centred on the pointer; drawn at full size, scaled down at rest */
+.cursor::before {
+  content: "";
+  position: absolute;
+  left: -22px;
+  top: -22px;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.92);
+  border: 1.5px solid rgba(255, 255, 255, 0);
+  box-shadow: 0 0 18px rgba(255, 255, 255, 0.35);
+  transform: scale(0.42);
+  transition:
+    transform 0.35s var(--ease-out),
+    background-color 0.25s,
+    border-color 0.25s,
+    box-shadow 0.25s;
+}
+
+/* over something clickable: opens into a light, see-through ring */
+.cursor.hover::before {
+  transform: scale(1);
+  background: rgba(255, 255, 255, 0.16);
+  border-color: rgba(255, 255, 255, 0.85);
+  box-shadow: 0 0 0 rgba(255, 255, 255, 0);
+}
+
+/* pressed: a quick squeeze */
+.cursor.down::before { transform: scale(0.32); }
+.cursor.hover.down::before { transform: scale(0.82); }
+
+/* on the white work sheet: brand blue so it stays visible */
+.cursor.light::before {
+  background: var(--blue);
+  box-shadow: 0 0 0 rgba(52, 122, 174, 0);
+}
+.cursor.light.hover::before {
+  background: rgba(52, 122, 174, 0.12);
+  border-color: var(--blue);
+}
+
+/* in a text field: step aside for the text cursor */
+.cursor.text::before { transform: scale(0); }
 
 /* brand-blue tint keeps the white text readable over the moving footage */
 .bg-tint {
