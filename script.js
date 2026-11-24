@@ -369,33 +369,95 @@ requestAnimationFrame(updateVideoBlur);
 })();
 
 // ---------- Custom cursor ----------
-// A soft dot that replaces the arrow on mouse/trackpad. It grows into a ring
-// over anything clickable, squeezes when pressed, turns blue over the white
-// work sheet, and steps aside for the text cursor in form fields.
+// A small bubble replaces the arrow on mouse/trackpad. It swells over anything
+// clickable, pops (and instantly reforms) on click, turns blue over the white
+// work sheet, and steps aside for the text cursor in form fields. Now and then
+// a tiny bubble breaks off and floats up while moving over the video.
 (function customCursor() {
-  const dot = document.createElement("div");
-  dot.className = "cursor";
-  dot.setAttribute("aria-hidden", "true");
-  document.body.appendChild(dot);
+  const cursor = document.createElement("div");
+  cursor.className = "cursor";
+  cursor.setAttribute("aria-hidden", "true");
+  const bubble = document.createElement("div");
+  bubble.className = "cursor-bubble";
+  cursor.appendChild(bubble);
+  document.body.appendChild(cursor);
 
   const CLICKABLE = "a, button, label, summary, select, mark.hl, [role='button'], .project";
   const TEXT = "input:not([type='checkbox']):not([type='radio']), textarea";
+  const EASE = "cubic-bezier(0.23, 1, 0.32, 1)";
+
+  const DRIFT_EVERY = 260;   // px of cursor travel between chances of a drift bubble
+  const DRIFT_CHANCE = 0.5;  // odds a bubble actually appears at each chance
+  const DRIFT_MAX = 3;       // most drift bubbles on screen at once
+
+  let x = 0, y = 0, travelled = 0, drifting = 0;
+
+  function spawn(className, size, cx, cy) {
+    const el = document.createElement("div");
+    el.className = className;
+    el.style.width = el.style.height = `${size}px`;
+    el.style.left = `${cx - size / 2}px`;
+    el.style.top = `${cy - size / 2}px`;
+    document.body.appendChild(el);
+    return el;
+  }
+
+  function drift() {
+    if (drifting >= DRIFT_MAX) return;
+    const size = 4 + Math.random() * 4;
+    const el = spawn("cursor-drift", size, x + (Math.random() - 0.5) * 14, y - 6);
+    const rise = 45 + Math.random() * 35;
+    const sway = (Math.random() - 0.5) * 16;
+    drifting++;
+    el.animate([
+      { transform: "translate(0, 0) scale(0.4)", opacity: 0 },
+      { transform: `translate(${sway * 0.4}px, ${-rise * 0.25}px) scale(1)`, opacity: 0.9, offset: 0.2 },
+      { transform: `translate(${-sway * 0.3}px, ${-rise * 0.65}px) scale(1)`, opacity: 0.6, offset: 0.65 },
+      { transform: `translate(${sway}px, ${-rise}px) scale(0.9)`, opacity: 0 },
+    ], { duration: 1500 + Math.random() * 700, easing: "ease-out" })
+      .finished.then(() => { el.remove(); drifting--; });
+  }
 
   window.addEventListener("pointermove", (e) => {
     if (e.pointerType === "touch") return;
     document.documentElement.classList.add("has-cursor");
-    dot.style.transform = `translate(${e.clientX}px, ${e.clientY}px)`;
+    if (cursor.classList.contains("shown")) travelled += Math.hypot(e.clientX - x, e.clientY - y);
+    x = e.clientX;
+    y = e.clientY;
+    cursor.style.transform = `translate(${x}px, ${y}px)`;
+
     const t = e.target instanceof Element ? e.target : null;
-    dot.classList.toggle("hover", !!t?.closest(CLICKABLE));
-    dot.classList.toggle("text", !!t?.closest(TEXT));
-    dot.classList.toggle("light", !!t?.closest(".contents"));
-    dot.classList.add("shown");
+    const inText = !!t?.closest(TEXT);
+    const onSheet = !!t?.closest(".contents");
+    cursor.classList.toggle("hover", !!t?.closest(CLICKABLE));
+    cursor.classList.toggle("text", inText);
+    cursor.classList.toggle("light", onSheet);
+    cursor.classList.add("shown");
+
+    // Only over the video, and only now and then.
+    if (travelled > DRIFT_EVERY) {
+      travelled = 0;
+      if (!onSheet && !inText && Math.random() < DRIFT_CHANCE) drift();
+    }
   }, { passive: true });
 
-  window.addEventListener("pointerdown", (e) => { if (e.pointerType !== "touch") dot.classList.add("down"); });
-  window.addEventListener("pointerup", () => dot.classList.remove("down"));
-  document.addEventListener("pointerleave", () => dot.classList.remove("shown"));
-  window.addEventListener("blur", () => dot.classList.remove("shown"));
+  // Click: the bubble pops into a spreading ring and a new one forms.
+  window.addEventListener("pointerdown", (e) => {
+    if (e.pointerType === "touch" || cursor.classList.contains("text")) return;
+    const size = bubble.offsetWidth;
+    const ring = spawn("cursor-pop" + (cursor.classList.contains("light") ? " light" : ""), size, e.clientX, e.clientY);
+    ring.animate([
+      { transform: "scale(1)", opacity: 0.9 },
+      { transform: "scale(2)", opacity: 0 },
+    ], { duration: 420, easing: EASE }).finished.then(() => ring.remove());
+    bubble.animate([
+      { transform: "translate(-50%, -50%) scale(0.2)", opacity: 0 },
+      { transform: "translate(-50%, -50%) scale(1)", opacity: 1 },
+    ], { duration: 380, delay: 60, easing: EASE, fill: "backwards" });
+  });
+
+  document.addEventListener("pointerleave", () => cursor.classList.remove("shown"));
+  window.addEventListener("blur", () => cursor.classList.remove("shown"));
 })();
 
 // ---------- Contents page ----------

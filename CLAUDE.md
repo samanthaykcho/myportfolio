@@ -14,12 +14,18 @@ Open `index.html` directly in a browser to view it.
 
 ## Structure
 - `index.html` holds **both views**: `#home-view` (title page + white "work" contents sheet + footer) and `#about-view` (bio, "currently…", résumé, contact form, fun fact). `about.html` is just a redirect to `index.html#about`.
-- `script.js` sections, in order: Lenis smooth scroll → tagline intro animation → Variable Proximity (cursor-weight effect on `.vp` elements, spring "sticky" pull) → name rounding filter → background video (0.5× speed, blur ramps at loop ends) → scroll reveal (`.project`, `[data-reveal]` get `.in`) → parallax → nav + hash router → contact form.
+- `script.js` sections, in order: Lenis smooth scroll → tagline intro animation → Variable Proximity (cursor-weight effect on `.vp` elements, spring "sticky" pull) → name rounding filter → background video (0.5× speed, blur ramps at loop ends) → water ripples → custom cursor → scroll reveal (`.project`, `[data-reveal]` get `.in`) → parallax → nav + hash router → contact form.
 - Router: hashes `#work`, `#about`, `#contact`, `#`. About slides in from the right (WAAPI, `showAbout`), home slides back (`showHome`), contact = show about then Lenis-scroll to `#contact` (call `lenis.resize()` first — the about view is position:fixed during the slide).
 - Top nav (work / about / contact) tucks away (`.nav.tucked`) once the white work sheet covers the screen; the same links live in the work page's `.foot` footer.
 - Font: Adobe Fonts kit `tfd3zvu`, family `acumin-variable` (weight animated via `font-variation-settings`).
 - Easing tokens in `:root`: `--ease-out: cubic-bezier(0.23,1,0.32,1)`; view slide uses `cubic-bezier(0.77,0,0.175,1)`.
 - Contact form posts to Web3Forms (access key in `data-key` on `#contact-form`), so her email is never on the page. Has a `botcheck` honeypot.
+
+## Water ripples + cursor
+- The video is redrawn on WebGL canvas `#bg-water` and **bent only** (refraction) by a CPU wave sim around the cursor; tuning constants sit at the top of the "Water ripples" section. Sam approved this look.
+- Rejected: lit/shaded glints on the waves (looked like "bumps on skin"), and long trails that spread across the screen. Keep it bend-only, short wake near the cursor.
+- Only works when served over http(s) — from `file://` the browser won't share video pixels, so it silently falls back to the plain video. Check on the live site.
+- Custom cursor: a bubble (`.cursor` > `.cursor-bubble`, mouse only, via `html.has-cursor`); swells over clickables, pops into a `.cursor-pop` ring on click, blue over the white `.contents` sheet, hidden in text fields. Rare `.cursor-drift` mini-bubbles float up over the video only (tuning constants at the top of the "Custom cursor" section). Sam wants it aquatic but low-key.
 
 ## Bio pop-ups
 Highlighted phrases (`mark.hl`) show a polaroid (`.pop` with `img` + `.cap`) on hover/focus. Thumbnails are `assets/pop-*.webp`, 600px wide, uncropped, made with sharp (`.rotate().resize({width:600}).webp({quality:84})`). HEIC files need converting first (sharp can't read them; WPF BitmapDecoder works).
