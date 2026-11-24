@@ -30,6 +30,7 @@
   <nav class="nav" aria-label="main">
     <a class="vp" id="nav-work" href="#work" data-from="600" data-to="900" data-radius="80" data-pull="0.1">work</a>
     <a class="vp" id="nav-about" href="#about" data-from="600" data-to="900" data-radius="80" data-pull="0.1">about</a>
+    <a class="vp" href="#contact" data-from="600" data-to="900" data-radius="80" data-pull="0.1">contact</a>
   </nav>
 
   <!-- ===================== home view ===================== -->
@@ -80,6 +81,16 @@
         </a>
 
       </div>
+
+      <!-- the nav tucks away while you browse the work, and waits down here instead -->
+      <footer class="foot">
+        <span class="foot-name">samantha cho</span>
+        <nav class="foot-nav" aria-label="footer">
+          <a class="vp" href="#work" data-from="600" data-to="900" data-radius="80" data-pull="0.1">work</a>
+          <a class="vp" href="#about" data-from="600" data-to="900" data-radius="80" data-pull="0.1">about</a>
+          <a class="vp" href="#contact" data-from="600" data-to="900" data-radius="80" data-pull="0.1">contact</a>
+        </nav>
+      </footer>
     </main>
   </div>
 
@@ -99,31 +110,162 @@
         <h2 class="vp about-title" data-from="700" data-to="900" data-radius="120" data-pull="0.06">hi, i'm sam!</h2>
 
         <p class="lead" data-reveal>
-          I’m a second year <mark class="hl">industrial design student</mark> at the University of Illinois Urbana-Champaign, having lots of fun <mark class="hl" style="--d: 1">thinking and designing for the user</mark>.
+          I’m a second year <mark class="hl" tabindex="0" style="--tilt: -3deg">industrial design student<span class="pop" aria-hidden="true"><img src="assets/pop-studio.webp" alt="" loading="lazy" decoding="async"><span class="cap">at the studio</span></span></mark> at the University of Illinois Urbana-Champaign, having lots of fun <mark class="hl" tabindex="0" style="--d: 1; --tilt: 2deg">thinking and designing for the user<span class="pop" aria-hidden="true"><img src="assets/pop-sketches.webp" alt="" loading="lazy" decoding="async"><span class="cap">always sketching</span></span></mark>.
         </p>
         <p data-reveal>
-          I was born and raised in <mark class="hl">Kuala Lumpur, Malaysia</mark>, and have spent many winters and summers in <mark class="hl" style="--d: 1">Taipei</mark> visiting family. Now, I’m in an exciting new chapter of life in Champaign, Illinois, exploring the vastly different everyday and design culture of the USA!
+          I was born and raised in <mark class="hl" tabindex="0" style="--tilt: 2.5deg">Kuala Lumpur, Malaysia<span class="pop" aria-hidden="true"><img src="assets/pop-malaysia.webp" alt="" loading="lazy" decoding="async"><span class="cap">best food on the planet</span></span></mark>, and have spent many winters and summers in <mark class="hl" tabindex="0" style="--d: 1; --tilt: -1.5deg">Taipei<span class="pop" aria-hidden="true"><img src="assets/pop-taipei.webp" alt="" loading="lazy" decoding="async"><span class="cap">4 years old on the metro!</span></span></mark> visiting family. Now, I’m in an exciting new chapter of life in Champaign, Illinois, exploring the vastly different everyday and design culture of the USA!
         </p>
 
-        <h3 class="label" data-reveal>skills</h3>
-        <ul class="tags" data-reveal>
-          <li>Physical prototyping</li>
-          <li>Fusion360 CAD</li>
-          <li>3D printing</li>
-          <li>Brand design</li>
-          <li>CMF design</li>
-          <li>Design thinking</li>
-          <li>Rapid prototyping</li>
-          <li>Woodworking</li>
-        </ul>
+        <!-- what she's up to right now, sitting level with the bottom of the photo -->
+        <div class="about-facts" data-reveal>
+          <h3 class="label">currently…</h3>
+          <ul>
+            <li>Exploring medical design</li>
+            <li>Honing my Illustrator skills</li>
+            <li>Watching Tougen Anki</li>
+          </ul>
+        </div>
 
-        <h3 class="label" data-reveal>contact</h3>
-        <ul class="links" data-reveal>
-          <li><a href="#">email (add yours)</a></li>
-          <li><a href="#">linkedin (add yours)</a></li>
-          <li><a href="#">instagram (add yours)</a></li>
-        </ul>
       </div>
+
+      <!-- résumé: label on the left (under the photo), details on the right (under the bio).
+           Each row fades up as you scroll to it. -->
+      <div class="cv">
+
+        <section class="cv-row" data-reveal>
+          <h3 class="label">i can do…</h3>
+          <div class="cv-body">
+            <div class="skill-group">
+              <span class="sub">design</span>
+              <ul class="tags">
+                <li>Human-centered design thinking</li>
+                <li>User &amp; market research</li>
+                <li>Concept development</li>
+                <li>Sketching</li>
+                <li>Storytelling</li>
+                <li>Graphic design</li>
+              </ul>
+            </div>
+            <div class="skill-group">
+              <span class="sub">making</span>
+              <ul class="tags">
+                <li>Prototyping</li>
+                <li>3D modeling</li>
+                <li>3D printing</li>
+                <li>Woodworking</li>
+              </ul>
+            </div>
+            <div class="skill-group">
+              <span class="sub">software</span>
+              <ul class="tags">
+                <li>Fusion 360</li>
+                <li>Rhinoceros 3D</li>
+                <li>AutoCAD</li>
+                <li>Illustrator</li>
+                <li>Photoshop</li>
+                <li>InDesign</li>
+                <li>Video editing</li>
+              </ul>
+            </div>
+            <div class="skill-group">
+              <span class="sub">code</span>
+              <ul class="tags">
+                <li>Java</li>
+                <li>Python</li>
+                <li>Claude Code</li>
+              </ul>
+            </div>
+          </div>
+        </section>
+
+        <section class="cv-row" data-reveal>
+          <h3 class="label">education</h3>
+          <div class="cv-body">
+            <div class="entry">
+              <div class="entry-head">
+                <strong>University of Illinois Urbana-Champaign</strong>
+                <span class="when">Aug 2025 – May 2029</span>
+              </div>
+              <p>Industrial Design + Data Science</p>
+              <p class="muted">4.0 GPA · Dean’s List (F25, S26) · James G. Hansen Scholarship recipient</p>
+            </div>
+          </div>
+        </section>
+
+        <section class="cv-row" data-reveal>
+          <h3 class="label">i’ve done…</h3>
+          <div class="cv-body">
+            <div class="entry">
+              <div class="entry-head"><strong>World Studios</strong><span class="when">Aug 2026 – now</span></div>
+              <p>Product Designer <span class="muted">· synthesizing insights from user interviews</span></p>
+            </div>
+            <div class="entry">
+              <div class="entry-head"><strong>Malaysian Students Association @ UIUC</strong><span class="when">Aug 2026 – now</span></div>
+              <p>Social Media Director</p>
+            </div>
+            <div class="entry">
+              <div class="entry-head"><strong>MHub Malaysia</strong><span class="when">Dec 2025 – Jan 2026</span></div>
+              <p>Digital Marketing Intern</p>
+            </div>
+            <div class="entry">
+              <div class="entry-head"><strong>CASEKOO</strong><span class="when">Jun – Aug 2024</span></div>
+              <p>Marketing Content Creator</p>
+            </div>
+          </div>
+        </section>
+
+        <section class="cv-row" data-reveal>
+          <h3 class="label">i speak…</h3>
+          <div class="cv-body">
+            <p>English <span class="muted">(native)</span> · Mandarin Chinese · Malay · Japanese <span class="muted">(conversational)</span></p>
+          </div>
+        </section>
+
+        <section class="cv-row" data-reveal>
+          <h3 class="label">i love…</h3>
+          <div class="cv-body">
+            <p>Intuitive designs · Matcha · My dog (Roxie!) · Aquatic animals · Baking</p>
+          </div>
+        </section>
+
+        <section class="cv-row" id="contact" data-reveal>
+          <h3 class="label">let’s talk!</h3>
+          <div class="cv-body">
+            <!-- messages go through Web3Forms to your inbox, so your email stays private.
+                 Paste your access key into data-key below. -->
+            <form class="contact-form" id="contact-form" data-key="bf0a2eea-dc1f-4cd2-aec6-bb364fd649e9" novalidate>
+              <div class="field-row">
+                <label class="field">
+                  <span>name / company</span>
+                  <input type="text" name="name" autocomplete="name" required>
+                </label>
+                <label class="field">
+                  <span>email</span>
+                  <input type="email" name="email" autocomplete="email" required>
+                </label>
+              </div>
+              <label class="field">
+                <span>message</span>
+                <textarea name="message" rows="5" required></textarea>
+              </label>
+              <!-- spam trap: hidden from people, bots tick it -->
+              <input type="checkbox" name="botcheck" class="trap" tabindex="-1" autocomplete="off" aria-hidden="true">
+              <div class="form-foot">
+                <button type="submit" class="send">send</button>
+                <p class="form-status" role="status" aria-live="polite"></p>
+              </div>
+            </form>
+
+            <ul class="links links--row">
+              <li><a href="https://www.linkedin.com/in/samantha-cho-705289353/" target="_blank" rel="noopener">linkedin</a></li>
+              <li><a href="https://www.instagram.com/samloves2design/" target="_blank" rel="noopener">instagram</a><span class="link-note">under construction!</span></li>
+            </ul>
+          </div>
+        </section>
+
+      </div>
+
+      <p class="fun-fact" data-reveal>fun fact: i took the background video at the osaka aquarium!</p>
     </main>
   </div>
 

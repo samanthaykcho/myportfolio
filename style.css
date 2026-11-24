@@ -109,8 +109,24 @@ body {
   margin-top: -60vh;
   background: #fff;
   color: var(--ink);
-  padding: 22vh 0 26vh;
+  padding: 22vh 0 0;
 }
+
+/* bottom of the work page: where the nav ends up */
+.foot {
+  width: min(1100px, 86vw);
+  margin: 26vh auto 0;
+  padding: 2rem 0 2.4rem;
+  border-top: 1.5px solid rgba(17, 17, 17, 0.15);
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  font-size: clamp(0.95rem, 1.2vw, 1.1rem);
+}
+.foot-name { font-weight: 600; opacity: 0.55; }
+.foot-nav { display: flex; gap: 1.6rem; }
+.foot-nav a { color: inherit; text-decoration: none; padding: 0.3rem 0.1rem; }
+.contents .foot-nav .vp { font-weight: 600; }
 
 /* ---- tide line (switched off): add class="tide-line" to <main class="contents"> to bring it back ---- */
 .contents.tide-line {
@@ -198,7 +214,7 @@ body {
 
 .desc {
   margin-top: 1.6rem;
-  max-width: 34ch;
+  width: 100%; /* spans the full width of the photo above */
   font-size: clamp(0.85rem, 1.05vw, 1rem);
   line-height: 1.4;
   font-weight: 500;
@@ -242,10 +258,16 @@ body {
   gap: 1.6rem;
   font-size: clamp(0.95rem, 1.2vw, 1.1rem);
   font-weight: 600;
-  transition: color 250ms var(--ease-out);
+  transition: color 250ms var(--ease-out), opacity 250ms var(--ease-out), transform 250ms var(--ease-out);
   color: #fff;
 }
 .nav.on-light { color: var(--ink); }
+/* over the work, the nav floats up and out of the way (it waits in the footer) */
+.nav.tucked {
+  opacity: 0;
+  transform: translateY(-12px);
+  pointer-events: none;
+}
 
 .nav a {
   color: inherit;
@@ -286,6 +308,17 @@ body {
 }
 .about-text .lead { font-size: clamp(1.15rem, 1.7vw, 1.5rem); line-height: 1.4; }
 
+/* bio column stretches to the photo's height so the facts can sit level with its bottom */
+.about-text { align-self: stretch; display: flex; flex-direction: column; }
+.about-facts {
+  margin-top: auto;
+  padding-top: 2.4rem;
+}
+.about-facts .label { margin: 0 0 0.8rem; }
+.about-facts ul { list-style: none; display: grid; gap: 0.3rem; }
+.about-facts li::before { content: "→ "; opacity: 0.6; }
+.about-facts li { font-size: clamp(0.95rem, 1.15vw, 1.05rem); font-weight: 500; line-height: 1.4; }
+
 .label {
   margin: 3rem 0 1rem;
   font-size: 0.85rem;
@@ -303,13 +336,128 @@ body {
   font-weight: 500;
 }
 
+/* résumé rows: same two columns as the photo + bio above, so everything lines up */
+.cv {
+  grid-column: 1 / -1;
+  margin-top: 14vh;
+  border-top: 1.5px solid rgba(255, 255, 255, 0.35);
+}
+.cv-row {
+  display: grid;
+  grid-template-columns: 5fr 7fr;
+  column-gap: 7vw;
+  padding: 2.6rem 0;
+  border-bottom: 1.5px solid rgba(255, 255, 255, 0.2);
+}
+.cv-row:last-child { border-bottom: 0; }
+.cv-row .label { margin: 0.2rem 0 1rem; }
+
+.cv-body p {
+  font-size: clamp(1rem, 1.25vw, 1.15rem);
+  line-height: 1.55;
+  font-weight: 500;
+}
+.cv-body strong { font-weight: 700; }
+.muted { opacity: 0.72; }
+
+.skill-group + .skill-group { margin-top: 1.4rem; }
+.sub {
+  display: block;
+  margin-bottom: 0.55rem;
+  font-size: 0.85rem;
+  font-weight: 600;
+  opacity: 0.72;
+}
+
+.entry + .entry { margin-top: 1.5rem; }
+.entry-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 1rem;
+  font-size: clamp(1rem, 1.25vw, 1.15rem);
+}
+.when {
+  flex-shrink: 0;
+  font-size: 0.9rem;
+  font-weight: 500;
+  opacity: 0.72;
+  font-variant-numeric: tabular-nums;
+}
+
+.fun-fact {
+  grid-column: 1 / -1;
+  margin-top: 10vh;
+  text-align: center;
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+.fun-fact.in { opacity: 0.7; }   /* fades up like the rest, but stays soft */
+
+/* contact form */
+.contact-form { display: grid; gap: 1.1rem; max-width: 560px; }
+.field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1.1rem; }
+.field { display: grid; gap: 0.4rem; }
+.field span { font-size: 0.85rem; font-weight: 600; opacity: 0.8; }
+.field input,
+.field textarea {
+  width: 100%;
+  padding: 0.75rem 0.9rem;
+  border: 1.5px solid rgba(255, 255, 255, 0.5);
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.08);
+  color: #fff;
+  font: inherit;
+  font-size: 1rem;
+  font-weight: 500;
+  transition: border-color 150ms var(--ease-out), background-color 150ms var(--ease-out);
+}
+.field textarea { resize: vertical; min-height: 8rem; }
+.field input:focus,
+.field textarea:focus {
+  outline: none;
+  border-color: #fff;
+  background: rgba(255, 255, 255, 0.14);
+}
+.field.invalid input,
+.field.invalid textarea { border-color: #ffb4a8; }
+.trap { position: absolute; left: -9999px; width: 1px; height: 1px; opacity: 0; }
+
+.form-foot { display: flex; align-items: center; gap: 1.2rem; flex-wrap: wrap; }
+.send {
+  padding: 0.7rem 1.6rem;
+  border: 0;
+  border-radius: 999px;
+  background: #fff;
+  color: var(--blue);
+  font: inherit;
+  font-size: 1rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: transform 160ms var(--ease-out), opacity 160ms var(--ease-out);
+}
+.send:active { transform: scale(0.97); }
+.send:disabled { opacity: 0.6; cursor: default; }
+.send:focus-visible { outline: 2px solid #fff; outline-offset: 3px; }
+@media (hover: hover) and (pointer: fine) {
+  .send:hover:not(:disabled) { transform: translateY(-1px); }
+}
+.form-status { font-size: 0.95rem; font-weight: 600; }
+
+.links--row li { display: flex; flex-direction: column; gap: 0.25rem; }
+.link-note { font-size: 0.8rem; font-weight: 500; opacity: 0.65; }
+.links.links--row { align-items: flex-start; display: flex; gap: 1.6rem; margin-top: 2rem; }
+
 .links { list-style: none; display: grid; gap: 0.5rem; }
 .links a {
   color: #fff;
   font-size: 1.05rem;
   font-weight: 600;
-  text-decoration: underline;
-  text-underline-offset: 4px;
+  text-decoration: none;
+  transition: opacity 150ms var(--ease-out);
+}
+@media (hover: hover) and (pointer: fine) {
+  .links a:hover { opacity: 0.7; }   /* still reads as clickable without an underline */
 }
 
 /* reveal for anything marked data-reveal */
@@ -330,6 +478,10 @@ body {
 @media (max-width: 720px) {
   .about { grid-template-columns: 1fr; row-gap: 3rem; padding-top: 16vh; }
   .about-photo { max-width: 320px; }
+  .cv { margin-top: 2rem; }
+  .cv-row { grid-template-columns: 1fr; padding: 2rem 0; }
+  .entry-head { flex-direction: column; gap: 0.15rem; }
+  .field-row { grid-template-columns: 1fr; }
 }
 
 /* ---------- home icon (animated ray) ---------- */
@@ -415,3 +567,71 @@ html.lenis.lenis-stopped { overflow: auto; }
   transition-delay: calc(750ms + var(--d, 0) * 320ms);
 }
 [data-reveal].in .hl { background-size: 100% 100%; }
+
+/* tagline: hidden until script.js brings it into focus word by word */
+.tagline.shown { opacity: 1; }
+
+/* ---------- thumbnail pop-ups on the bio highlights ---------- */
+/* a small photo, tilted like a pinned polaroid, grows up out of the word on
+   hover (or keyboard focus) and goes away quickly when you move off */
+.hl { position: relative; outline-offset: 3px; }
+
+.pop {
+  position: absolute;
+  left: 50%;
+  bottom: calc(100% + 10px);
+  z-index: 5;
+  width: clamp(96px, 8.5vw, 132px);
+  /* polaroid: thin white border, with a deeper strip at the bottom for the caption */
+  padding: 6px 6px 0;
+  border-radius: 3px;
+  background: #fff;
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.32);
+  pointer-events: none;
+  opacity: 0;
+  transform-origin: 50% 100%;               /* grows out of the word */
+  transform: translateX(-50%) translateY(6px) scale(0.94) rotate(var(--tilt, -2deg));
+  transition: opacity 130ms var(--ease-out), transform 130ms var(--ease-out);  /* quick exit */
+}
+.hl:hover .pop,
+.hl:focus-visible .pop {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0) scale(1) rotate(var(--tilt, -2deg));
+  transition-duration: 220ms;
+  transition-delay: 60ms;                   /* ignores a cursor just passing through */
+}
+
+/* the frame takes each photo's own shape, showing the whole photo */
+.pop img {
+  display: block;
+  width: 100%;
+  height: auto;
+  outline: 1px solid rgba(0, 0, 0, 0.08);   /* keeps white photos (like the sketches) from melting into the frame */
+  outline-offset: -1px;
+}
+
+.pop .cap {
+  display: block;
+  padding: 7px 2px 9px;
+  color: #2a2f35;
+  font-size: 0.75rem;
+  font-weight: 500;
+  font-variation-settings: 'wght' 500;
+  line-height: 1.2;
+  text-align: center;
+  text-wrap: balance;   /* longer captions split into two even lines */
+}
+
+/* placeholder tile until the real photo arrives */
+.pop .ph {
+  display: grid;
+  place-items: center;
+  aspect-ratio: 3 / 4;
+  padding: 0.5rem;
+  background: #eef1f4;
+  color: #24506f;
+  font-size: 0.75rem;
+  font-weight: 600;
+  line-height: 1.3;
+  text-align: center;
+}

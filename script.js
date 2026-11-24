@@ -6,15 +6,21 @@ function raf(time) {
 }
 requestAnimationFrame(raf);
 
-// ---------- Tagline fades in once the user starts scrolling ----------
+// ---------- Tagline comes into focus word by word, once, after the page loads ----------
+// (Only opacity and blur are animated: the letters' transform belongs to the cursor effect.)
 const tagline = document.getElementById("tagline");
-function updateFade() {
-  if (!tagline) return; // only on the home page
-  tagline.style.opacity = Math.min(window.scrollY / (window.innerHeight * 0.25), 1);
+function introTagline() {
+  if (!tagline) return;
+  tagline.classList.add("shown");
+  let word = 0;
+  tagline.querySelectorAll(".ch").forEach((letter) => {
+    if (letter.textContent === " ") { word++; return; }
+    letter.animate(
+      [{ opacity: 0, filter: "blur(8px)" }, { opacity: 1, filter: "blur(0px)" }],
+      { duration: 900, delay: 450 + word * 70, easing: "cubic-bezier(0.23, 1, 0.32, 1)", fill: "backwards" }
+    );
+  });
 }
-lenis.on("scroll", updateFade);
-window.addEventListener("resize", updateFade);
-updateFade();
 
 // ---------- Variable Proximity ----------
 // Plain-JS version of the React Bits "Variable Proximity" effect:
@@ -96,6 +102,7 @@ updateRounding();
 // don't shift the whole block around.
 document.fonts.ready.then(() => {
   pinLockup();
+  introTagline();
   requestAnimationFrame(animate);
 });
 
@@ -188,6 +195,8 @@ function updateNav() {
   const onLight = !isAbout() && contentsSheet.getBoundingClientRect().top <= 40;
   nav.classList.toggle("on-light", onLight);
   homeIcon.classList.toggle("on-light", onLight);
+  // once the work page covers the screen, the top nav tucks away (it's in the footer)
+  nav.classList.toggle("tucked", onLight);
 }
 lenis.on("scroll", updateNav);
 window.addEventListener("resize", updateNav);
@@ -225,7 +234,7 @@ function homeTarget(hash) {
   if (hash === "#work") return contentsSheet.getBoundingClientRect().top + window.scrollY;
   return 0;
 }
-function refresh() { updateFade(); updateNav(); updateParallax(); }
+function refresh() { updateNav(); updateParallax(); }
 
 async function showAbout(animate) {
   if (isAbout()) return;
@@ -278,13 +287,36 @@ async function showHome(hash, fromHistory, animate) {
   lenis.start(); busy = false; refresh();
 }
 
+// "contact": slide over to the about page (if needed), then glide down to the form
+const contactSection = document.getElementById("contact");
+async function showContact(animate) {
+  const wasAbout = isAbout();
+  await showAbout(animate);
+  // let the page land for a beat so the slide and the scroll read as two moves
+  if (animate && !wasAbout) await new Promise((r) => setTimeout(r, 150));
+  // the about page was pinned in place during the slide, so Lenis still thinks the
+  // page is short; re-measure first or it can't scroll down
+  lenis.resize();
+  lenis.scrollTo(contactSection, {
+    offset: -window.innerHeight * 0.12,
+    immediate: !animate,
+    force: true,
+    duration: wasAbout ? 0.9 : 1.1,
+    easing: (t) => (t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2), // ease in-out
+  });
+}
+
 function route(hash, fromHistory, animate = true) {
-  if (hash === "#about") showAbout(animate);
+  if (hash === "#about") {
+    if (isAbout()) lenis.scrollTo(0);           // already there: glide back to the top
+    else showAbout(animate);
+  }
+  else if (hash === "#contact") showContact(animate);
   else showHome(hash, fromHistory, animate);
 }
 
 // nav links, the ray icon: change the URL and slide, without reloading
-document.querySelectorAll('.nav a, a.home').forEach((a) => {
+document.querySelectorAll('.nav a, .foot-nav a, a.home').forEach((a) => {
   a.addEventListener("click", (e) => {
     e.preventDefault();
     if (busy) return;
@@ -305,6 +337,69 @@ document.addEventListener("click", (e) => {
 window.addEventListener("popstate", () => { if (!busy) route(location.hash, true); });
 
 // opened directly at index.html#about (or via the old about.html link)
-if (location.hash === "#about") route("#about", false, false);
+if (location.hash === "#about" || location.hash === "#contact") route(location.hash, false, false);
 markCurrent();
 updateNav();
+
+/* ---------- contact form ----------
+   Sends through Web3Forms, which forwards the message to your inbox,
+   so your email address never appears on the page. */
+const contactForm = document.getElementById("contact-form");
+if (contactForm) {
+  const status = contactForm.querySelector(".form-status");
+  const sendBtn = contactForm.querySelector(".send");
+  const key = contactForm.dataset.key;
+
+  // clear the red outline as soon as someone fixes a field
+  contactForm.addEventListener("input", (e) => {
+    e.target.closest(".field")?.classList.remove("invalid");
+  });
+
+  contactForm.addEventListener("submit", async (e) => {
+    e.preventDefault();
+
+    // check fields ourselves so the messages match the site's tone
+    let firstBad = null;
+    contactForm.querySelectorAll("input[required], textarea[required]").forEach((f) => {
+      const bad = !f.value.trim() || (f.type === "email" && !f.checkValidity());
+      f.closest(".field").classList.toggle("invalid", bad);
+      if (bad && !firstBad) firstBad = f;
+    });
+    if (firstBad) {
+      status.textContent = "please fill in all three boxes (with a real email!)";
+      firstBad.focus();
+      return;
+    }
+    if (!key || key === "YOUR_WEB3FORMS_KEY") {
+      status.textContent = "the form isn't hooked up yet, check back soon!";
+      return;
+    }
+
+    const data = Object.fromEntries(new FormData(contactForm));
+    data.access_key = key;
+    data.subject = `portfolio message from ${data.name}`;
+    data.from_name = "samantha cho portfolio";
+    data.botcheck = contactForm.querySelector(".trap").checked;
+
+    sendBtn.disabled = true;
+    sendBtn.textContent = "sending…";
+    status.textContent = "";
+    try {
+      const res = await fetch("https://api.web3forms.com/submit", {
+        method: "POST",
+        headers: { "Content-Type": "application/json", Accept: "application/json" },
+        body: JSON.stringify(data),
+      });
+      const json = await res.json();
+      if (!json.success) throw new Error(json.message);
+      contactForm.reset();
+      sendBtn.textContent = "sent!";
+      status.textContent = "thanks! i'll get back to you soon :)";
+      setTimeout(() => { sendBtn.disabled = false; sendBtn.textContent = "send"; }, 4000);
+    } catch {
+      sendBtn.disabled = false;
+      sendBtn.textContent = "send";
+      status.textContent = "hm, that didn't go through. mind trying again?";
+    }
+  });
+}
