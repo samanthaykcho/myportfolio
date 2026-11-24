@@ -246,11 +246,15 @@ html.has-cursor textarea { cursor: text !important; }
   display: grid;
   grid-template-columns: 1fr 1fr;
   column-gap: 8vw;
+  row-gap: 6vh;
   align-items: start;
 }
 
 /* the second project sits lower so the page isn't a flat row */
 .project:nth-child(2) { margin-top: 16vh; }
+/* a row only starts below its taller (right-hand, dropped) card, so left-hand cards
+   after the first pull back up by the same amount to keep the zig-zag even */
+.project:nth-child(odd):not(:first-child) { margin-top: -16vh; }
 
 .project {
   display: block;
@@ -334,7 +338,8 @@ html.has-cursor textarea { cursor: text !important; }
 
 @media (max-width: 720px) {
   .projects { grid-template-columns: 1fr; row-gap: 14vh; }
-  .project:nth-child(2) { margin-top: 0; }
+  .project:nth-child(2),
+  .project:nth-child(odd):not(:first-child) { margin-top: 0; }
 }
 
 /* ---------- navigation ---------- */
@@ -621,6 +626,9 @@ html.has-cursor textarea { cursor: text !important; }
 /* positions are percentages of the frame, matched to how the images were cropped */
 .cutout--kove { left: -26.667%; top: -26.667%; width: 153.333%; }
 .cutout--lid  { left: -14.6%;   top: 70.9%;    width: 30%; }
+.cutout--nimi { left: -11.111%; top: -18.519%; width: 143.117%; }
+/* nimi's strap curls below the frame's right quarter, so its text wraps before it */
+.desc--clear-spill { width: 58%; }
 
 @media (hover: hover) and (pointer: fine) {
   .project.in:hover .cutout { transform: translate(-11px, -11px); }

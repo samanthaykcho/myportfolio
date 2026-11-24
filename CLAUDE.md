@@ -33,6 +33,7 @@ Highlighted phrases (`mark.hl`) show a polaroid (`.pop` with `img` + `.cap`) on 
 ## Assets
 - Full-size originals (photos, stock, HEIC) are gitignored — only the web-sized versions are committed.
 - Project frame images + spill-out cut-outs (`kove-cutout.webp`, `isogu-lid-cutout.webp`) were made with sharp + `@imgly/background-removal-node`.
+- nimi (03, AI cloud camera for kids): Sam's own cut-out (`nimi png.PNG`) didn't line up with her hero render, so `nimi.jpg` is the cut-out composited on a hero-matched blue gradient (square crop at x159 y265 size1431 of the 2048 canvas), and `nimi-cutout.webp` is the same cut-out (low-alpha haze removed, cast shadow removed outside the frame) so the strap spills out. sharp isn't installed in the repo — install it in the scratchpad when needed.
 - `ray-sprite.png` is the animated home icon (thickened from `RAY.GIF`).
 
 ## Open items
