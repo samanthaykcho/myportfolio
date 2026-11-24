@@ -24,7 +24,8 @@ body {
   background: var(--blue); /* shows if the video can't play */
 }
 
-.bg video {
+.bg video,
+.bg canvas {
   position: absolute;
   inset: 0;
   width: 100%;
@@ -33,6 +34,12 @@ body {
   transform: scale(1.12); /* hides the soft edges that blur creates */
   filter: blur(4px);      /* blur amount is animated by script.js */
 }
+
+/* water ripples: once the canvas is drawing the video, it replaces the plain
+   video (which keeps playing underneath as the canvas's source) */
+.bg canvas { display: none; }
+.bg.water canvas { display: block; }
+.bg.water video { opacity: 0; }
 
 /* brand-blue tint keeps the white text readable over the moving footage */
 .bg-tint {

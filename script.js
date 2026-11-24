@@ -124,6 +124,10 @@ const BLUR_BASE = 4;   // px, during the clip
 const BLUR_PEAK = 16;  // px, at the loop point
 const RAMP = 1.2;      // seconds of video over which the blur ramps
 
+// Whichever element is showing the footage gets the blur (the water canvas
+// takes over from the video once it's running).
+let blurTarget = bgVideo;
+
 function updateVideoBlur() {
   const d = bgVideo.duration;
   if (d && isFinite(d)) {
@@ -131,11 +135,243 @@ function updateVideoBlur() {
     const edge = Math.min(t, d - t);                    // seconds from nearest end
     const k = Math.max(0, 1 - edge / Math.min(RAMP, d / 2));
     const eased = k * k * (3 - 2 * k);                  // smoothstep
-    bgVideo.style.filter = `blur(${(BLUR_BASE + (BLUR_PEAK - BLUR_BASE) * eased).toFixed(1)}px)`;
+    blurTarget.style.filter = `blur(${(BLUR_BASE + (BLUR_PEAK - BLUR_BASE) * eased).toFixed(1)}px)`;
   }
   requestAnimationFrame(updateVideoBlur);
 }
 requestAnimationFrame(updateVideoBlur);
+
+// ---------- Water ripples ----------
+// The video is redrawn on a WebGL canvas through a rippling water surface.
+// Moving the cursor leaves a gentle wake; clicking/tapping drops a splash.
+// If WebGL isn't available (or the browser won't share the video's pixels,
+// e.g. when index.html is opened straight from disk), the plain video stays.
+(function waterRipples() {
+  const canvas = document.getElementById("bg-water");
+  const bg = canvas.parentElement;
+
+  const CELL = 6;          // css px per simulation cell (bigger = broader waves)
+  const DAMPING = 0.984;   // how quickly ripples fade (closer to 1 = longer)
+  const REFRACT = 0.05;    // how much the waves bend the footage
+  const SHINE = 0.55;      // light glinting off the wave slopes
+  const TRAIL_AMP = 0.22;  // strength of the cursor wake
+  const SPLASH_AMP = 1.1;  // strength of a click splash
+  const ZOOM = 1.12;       // must match the scale() on .bg canvas in style.css
+
+  const gl = canvas.getContext("webgl", { alpha: false, antialias: false, premultipliedAlpha: false });
+  if (!gl) return;
+
+  // --- shaders ---
+  const vsSrc = `
+    attribute vec2 a;
+    varying vec2 vUv;
+    void main() {
+      vUv = vec2(a.x * 0.5 + 0.5, 0.5 - a.y * 0.5); // y = 0 at the top
+      gl_Position = vec4(a, 0.0, 1.0);
+    }`;
+  const fsSrc = `
+    precision mediump float;
+    uniform sampler2D uVideo;
+    uniform sampler2D uHeight;
+    uniform vec2 uTexel;
+    uniform vec2 uCover;
+    uniform float uRefract;
+    uniform float uShine;
+    varying vec2 vUv;
+    void main() {
+      float l = texture2D(uHeight, vUv - vec2(uTexel.x, 0.0)).r;
+      float r = texture2D(uHeight, vUv + vec2(uTexel.x, 0.0)).r;
+      float u = texture2D(uHeight, vUv - vec2(0.0, uTexel.y)).r;
+      float d = texture2D(uHeight, vUv + vec2(0.0, uTexel.y)).r;
+      vec2 slope = vec2(r - l, d - u);
+      vec2 uv = (vUv - 0.5) * uCover + 0.5;   // object-fit: cover
+      vec3 c = texture2D(uVideo, uv + slope * uRefract).rgb;
+      c += max(0.0, -slope.x - slope.y) * uShine; // light from the top-left
+      gl_FragColor = vec4(c, 1.0);
+    }`;
+
+  function compile(type, src) {
+    const s = gl.createShader(type);
+    gl.shaderSource(s, src);
+    gl.compileShader(s);
+    return gl.getShaderParameter(s, gl.COMPILE_STATUS) ? s : null;
+  }
+  const vs = compile(gl.VERTEX_SHADER, vsSrc);
+  const fs = compile(gl.FRAGMENT_SHADER, fsSrc);
+  if (!vs || !fs) return;
+  const prog = gl.createProgram();
+  gl.attachShader(prog, vs);
+  gl.attachShader(prog, fs);
+  gl.linkProgram(prog);
+  if (!gl.getProgramParameter(prog, gl.LINK_STATUS)) return;
+  gl.useProgram(prog);
+
+  const buf = gl.createBuffer();
+  gl.bindBuffer(gl.ARRAY_BUFFER, buf);
+  gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1, -1, 1, -1, -1, 1, 1, 1]), gl.STATIC_DRAW);
+  const aLoc = gl.getAttribLocation(prog, "a");
+  gl.enableVertexAttribArray(aLoc);
+  gl.vertexAttribPointer(aLoc, 2, gl.FLOAT, false, 0, 0);
+
+  const U = (n) => gl.getUniformLocation(prog, n);
+  const uTexel = U("uTexel"), uCover = U("uCover");
+  gl.uniform1i(U("uVideo"), 0);
+  gl.uniform1i(U("uHeight"), 1);
+  gl.uniform1f(U("uRefract"), REFRACT);
+  gl.uniform1f(U("uShine"), SHINE);
+
+  function makeTex(unit) {
+    const t = gl.createTexture();
+    gl.activeTexture(gl.TEXTURE0 + unit);
+    gl.bindTexture(gl.TEXTURE_2D, t);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+    return t;
+  }
+  const videoTex = makeTex(0);
+  const heightTex = makeTex(1);
+  gl.pixelStorei(gl.UNPACK_ALIGNMENT, 1);
+
+  // --- water surface simulation (runs on the CPU at low resolution) ---
+  let W = 0, H = 0, gw = 0, gh = 0;
+  let cur, prev, bytes;
+
+  function resize() {
+    W = window.innerWidth;
+    H = window.innerHeight;
+    canvas.width = W;   // the footage is blurred, so 1x resolution is plenty
+    canvas.height = H;
+    gl.viewport(0, 0, W, H);
+    gw = Math.ceil(W / CELL) + 2;
+    gh = Math.ceil(H / CELL) + 2;
+    cur = new Float32Array(gw * gh);
+    prev = new Float32Array(gw * gh);
+    bytes = new Uint8Array(gw * gh).fill(128);
+    gl.uniform2f(uTexel, 1 / gw, 1 / gh);
+    uploadHeight();
+    updateCover();
+  }
+
+  function updateCover() {
+    const vw = bgVideo.videoWidth, vh = bgVideo.videoHeight;
+    if (!vw || !vh || !W) { gl.uniform2f(uCover, 1, 1); return; }
+    const a = W / H, v = vw / vh;
+    if (a > v) gl.uniform2f(uCover, 1, v / a);
+    else gl.uniform2f(uCover, a / v, 1);
+  }
+  bgVideo.addEventListener("loadedmetadata", updateCover);
+
+  function step() {
+    for (let y = 1; y < gh - 1; y++) {
+      const row = y * gw;
+      for (let x = 1; x < gw - 1; x++) {
+        const i = row + x;
+        prev[i] = ((cur[i - 1] + cur[i + 1] + cur[i - gw] + cur[i + gw]) * 0.5 - prev[i]) * DAMPING;
+      }
+    }
+    const t = cur; cur = prev; prev = t;
+  }
+
+  function uploadHeight() {
+    for (let i = 0; i < cur.length; i++) {
+      const h = cur[i];
+      bytes[i] = h > 1 ? 255 : h < -1 ? 0 : (h * 127.5 + 127.5) | 0;
+    }
+    gl.activeTexture(gl.TEXTURE1);
+    gl.texImage2D(gl.TEXTURE_2D, 0, gl.LUMINANCE, gw, gh, 0, gl.LUMINANCE, gl.UNSIGNED_BYTE, bytes);
+  }
+
+  // Push the surface down in a soft round dip around (cx, cy) in grid cells.
+  function drop(cx, cy, radius, amp) {
+    const r = Math.ceil(radius);
+    for (let y = Math.max(1, Math.floor(cy) - r); y <= Math.min(gh - 2, Math.ceil(cy) + r); y++) {
+      for (let x = Math.max(1, Math.floor(cx) - r); x <= Math.min(gw - 2, Math.ceil(cx) + r); x++) {
+        const d = Math.hypot(x - cx, y - cy) / radius;
+        if (d < 1) cur[y * gw + x] -= amp * 0.5 * (1 + Math.cos(Math.PI * d));
+      }
+    }
+    lastInput = performance.now();
+  }
+
+  // Viewport px → grid cells (the canvas is zoomed around its centre).
+  const toGrid = (px, py) => [
+    ((px - W / 2) / ZOOM + W / 2) / CELL + 1,
+    ((py - H / 2) / ZOOM + H / 2) / CELL + 1,
+  ];
+
+  // --- input ---
+  let lastX = null, lastY = null, lastInput = -Infinity;
+
+  window.addEventListener("pointermove", (e) => {
+    if (e.pointerType === "touch") return; // touch gets splashes on tap instead
+    const [gx, gy] = toGrid(e.clientX, e.clientY);
+    if (lastX !== null) {
+      const dist = Math.hypot(gx - lastX, gy - lastY);
+      const n = Math.min(12, Math.ceil(dist / 1.5)); // fill in fast movements
+      const amp = Math.min(TRAIL_AMP, 0.04 + dist * 0.03) / Math.max(1, n * 0.5);
+      for (let k = 1; k <= n; k++) {
+        const t = k / n;
+        drop(lastX + (gx - lastX) * t, lastY + (gy - lastY) * t, 2.5, amp);
+      }
+    }
+    lastX = gx; lastY = gy;
+  }, { passive: true });
+
+  document.addEventListener("pointerleave", () => { lastX = lastY = null; });
+
+  window.addEventListener("pointerdown", (e) => {
+    const [gx, gy] = toGrid(e.clientX, e.clientY);
+    drop(gx, gy, 5, SPLASH_AMP);
+  }, { passive: true });
+
+  // --- render loop ---
+  let lastVideoTime = -1, acc = 0, lastFrame = performance.now(), settled = true;
+
+  function frame(now) {
+    // Copy a new video frame into the texture only when the video has moved on.
+    if (bgVideo.readyState >= 2 && bgVideo.currentTime !== lastVideoTime) {
+      lastVideoTime = bgVideo.currentTime;
+      gl.activeTexture(gl.TEXTURE0);
+      try {
+        gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGB, gl.RGB, gl.UNSIGNED_BYTE, bgVideo);
+      } catch (err) {
+        // Browser won't let WebGL read the video (e.g. opened from disk):
+        // give the plain video back and stop.
+        bg.classList.remove("water");
+        blurTarget = bgVideo;
+        return;
+      }
+      if (!bg.classList.contains("water")) {
+        updateCover();
+        bg.classList.add("water");
+        canvas.style.filter = bgVideo.style.filter;
+        blurTarget = canvas;
+      }
+    }
+
+    // Step the water at a fixed 60 steps/s so it behaves the same on any screen.
+    acc += Math.min(100, now - lastFrame);
+    lastFrame = now;
+    const active = now - lastInput < 5000; // waves have died out after ~5s
+    if (active) {
+      settled = false;
+      while (acc >= 1000 / 60) { step(); acc -= 1000 / 60; }
+      uploadHeight();
+    } else {
+      acc = 0;
+      if (!settled) { cur.fill(0); prev.fill(0); uploadHeight(); settled = true; }
+    }
+
+    if (bg.classList.contains("water")) gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+    requestAnimationFrame(frame);
+  }
+
+  resize();
+  window.addEventListener("resize", resize);
+  requestAnimationFrame(frame);
+})();
 
 // ---------- Contents page ----------
 const projects = [...document.querySelectorAll(".project")];

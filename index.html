@@ -21,6 +21,8 @@
        Shared by both views, so it keeps playing when you switch between them. -->
   <div class="bg" aria-hidden="true">
     <video id="bg-video" src="assets/aquarium.mp4" muted loop playsinline autoplay preload="auto"></video>
+    <!-- the video redrawn through a water surface the cursor ripples (script.js) -->
+    <canvas id="bg-water"></canvas>
     <div class="bg-tint"></div>
     <div class="bg-grain"></div>
   </div>
