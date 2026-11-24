@@ -732,3 +732,568 @@ html.lenis.lenis-stopped { overflow: auto; }
   line-height: 1.3;
   text-align: center;
 }
+
+/* ---------- project pages ---------- */
+.case { color: #fff; }
+
+/* hero: the product shot fills the first screen, logo floats on the wall above the tin */
+.case-hero {
+  position: relative;
+  height: 100vh;
+  min-height: 520px;
+  overflow: hidden;
+  background: #cfcfcd; /* the photo's wall grey, while it loads */
+}
+
+.case-hero-img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: 52% 25%; /* keeps the tin in the lower half on wide screens */
+}
+
+.case-logo {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: max(9vh, 4.5rem);
+  margin: 0 auto;
+  /* sized by height too, so it never comes down onto the tin on short screens */
+  width: min(32vw, 52vh, 620px);
+}
+.case-logo img {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+/* the story sits on a white sheet, like the work page */
+.case-sheet {
+  background: #fff;
+  color: var(--ink);
+  padding: 12vh 0 22vh;
+}
+
+/* number + skills, top of the sheet */
+.case-intro {
+  width: min(1100px, 86vw);
+  margin: 0 auto;
+  display: flex;
+  align-items: baseline;
+  gap: 2.4rem;
+  padding-bottom: 2.2rem;
+  border-bottom: 1.5px solid rgba(17, 17, 17, 0.15);
+}
+.case-num {
+  font-size: clamp(1rem, 1.3vw, 1.2rem);
+  font-weight: 700;
+  opacity: 0.62; /* still reads as secondary, but passes contrast on white */
+}
+.case-tags {
+  max-width: 48ch;
+  font-size: clamp(1rem, 1.25vw, 1.15rem);
+  font-weight: 500;
+  line-height: 1.5;
+}
+
+/* ---- story sections (context, research, …) ---- */
+.case-section {
+  width: min(1100px, 86vw);
+  margin: 18vh auto 0;
+}
+
+/* big lowercase heading, corners softened by the #round-head filter
+   (stands in for Sam's 5% path smoothing in Illustrator) */
+.case-heading {
+  display: inline-block;
+  filter: url(#round-head);
+  font-size: clamp(2.8rem, 6.4vw, 6rem);
+  line-height: 1;
+  letter-spacing: -0.02em;
+  margin-bottom: 9vh;
+}
+.case-sheet .vp { font-weight: 700; }
+
+/* two photos side by side; the second drops a little, like the work grid */
+.case-pair {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  column-gap: 6vw;
+  align-items: start;
+}
+.case-pair .case-fig:nth-child(2) { margin-top: 12vh; }
+
+.case-fig { margin: 0; }
+.case-img {
+  aspect-ratio: 3 / 2;
+  overflow: hidden;
+}
+.case-img img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.case-fig figcaption {
+  margin-top: 1.3rem;
+  max-width: 46ch;
+  font-size: clamp(1rem, 1.2vw, 1.1rem);
+  line-height: 1.55;
+  font-weight: 500;
+}
+
+/* photos wipe open as you reach them, like the project cards */
+.case-fig .case-img {
+  clip-path: inset(0 0 100% 0);
+  transition: clip-path 1000ms var(--ease-out);
+}
+.case-fig.in .case-img { clip-path: inset(0 0 0 0); }
+
+/* the "so what": bigger, on its own, starting under the right-hand photo */
+.case-takeaway {
+  margin: 14vh 0 0 calc(50% + 3vw);
+  max-width: 34ch;
+  font-size: clamp(1.2rem, 1.7vw, 1.55rem);
+  font-weight: 600;
+  line-height: 1.35;
+  letter-spacing: -0.01em;
+}
+
+/* "how can we" statement: big, centred, on its own, with the key phrases in blue */
+.case-hcw {
+  width: min(1100px, 86vw);
+  margin: 26vh auto 0;
+  text-align: center;
+}
+.case-hcw p {
+  max-width: 30ch;
+  margin: 0 auto;
+  font-size: clamp(1.6rem, 3vw, 2.75rem);
+  font-weight: 600;
+  line-height: 1.22;
+  letter-spacing: -0.02em;
+  text-wrap: balance;
+}
+.case-hcw em {
+  font-style: normal;
+  color: var(--blue);
+}
+
+/* ---- research: sub-sections, comparison columns, criteria list ---- */
+.case-block + .case-block { margin-top: 16vh; }
+
+.case-sub {
+  font-size: clamp(1.3rem, 2vw, 1.8rem);
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  margin-bottom: 2.6rem;
+}
+
+/* screen-reader-only text (the +/− marks are visual) */
+.sr {
+  position: absolute;
+  width: 1px; height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+/* three existing products side by side, each under a thin rule */
+.case-compare {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  column-gap: 4vw;
+  align-items: start;
+}
+.case-option {
+  border-top: 1.5px solid rgba(17, 17, 17, 0.15);
+  padding-top: 1.4rem;
+}
+.case-option:nth-child(2) { transition-delay: 120ms; }
+.case-option:nth-child(3) { transition-delay: 240ms; }
+.case-option h4 {
+  font-size: clamp(1.05rem, 1.35vw, 1.25rem);
+  font-weight: 700;
+  line-height: 1.3;
+  margin-bottom: 1.1rem;
+}
+.proscons { list-style: none; display: grid; gap: 0.75rem; }
+.proscons li {
+  position: relative;
+  padding-left: 1.4em;
+  font-size: clamp(1rem, 1.15vw, 1.08rem);
+  line-height: 1.5;
+  font-weight: 500;
+}
+.proscons li::before {
+  position: absolute;
+  left: 0;
+  font-weight: 700;
+}
+.proscons .pro::before { content: "+"; color: var(--blue); }
+.proscons .con::before { content: "−"; color: rgba(17, 17, 17, 0.62); }
+
+/* criteria: numbered rows — number, keyword, what it means */
+.case-criteria {
+  list-style: none;
+  counter-reset: crit;
+  border-top: 1.5px solid rgba(17, 17, 17, 0.15);
+}
+.case-criteria li {
+  counter-increment: crit;
+  display: grid;
+  grid-template-columns: 3.2rem minmax(0, 5fr) minmax(0, 7fr);
+  column-gap: 2rem;
+  align-items: baseline;
+  padding: 1.4rem 0;
+  border-bottom: 1.5px solid rgba(17, 17, 17, 0.15);
+}
+.case-criteria li::before {
+  content: counter(crit, decimal-leading-zero);
+  font-size: 0.95rem;
+  font-weight: 700;
+  opacity: 0.62;
+}
+.crit-name {
+  font-size: clamp(1.2rem, 1.7vw, 1.55rem);
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+.crit-desc {
+  max-width: 52ch;
+  font-size: clamp(1rem, 1.15vw, 1.08rem);
+  line-height: 1.5;
+  font-weight: 500;
+}
+
+/* ---- "coming soon" project pages (kove, nimi): on the video, text left, photo right ---- */
+.soon {
+  width: min(1100px, 86vw);
+  margin: 0 auto;
+  min-height: 100vh;
+  padding: 18vh 0 12vh;
+  display: grid;
+  grid-template-columns: 5fr 6fr;
+  column-gap: 7vw;
+  align-items: center;
+}
+/* text stays narrow so the cut-outs have room to spill toward it */
+.soon-text { max-width: 22rem; }
+.soon-num {
+  display: block;
+  font-size: clamp(1rem, 1.3vw, 1.2rem);
+  font-weight: 700;
+  opacity: 0.75;
+  margin-bottom: 1rem;
+}
+/* same size + softened corners as the isogu section headings (#round-head) */
+.soon-title {
+  display: inline-block;
+  filter: url(#round-head);
+  font-size: clamp(2.8rem, 6.4vw, 6rem);
+  line-height: 1;
+  letter-spacing: -0.02em;
+  margin-bottom: 1.6rem;
+}
+.soon .vp { font-weight: 700; }
+.soon-tags {
+  font-size: clamp(1rem, 1.2vw, 1.1rem);
+  font-weight: 500;
+  line-height: 1.5;
+}
+/* the heads-up: a soft pill so it reads as a note, not an error */
+.soon-note {
+  display: inline-block;
+  margin-top: 2.4rem;
+  padding: 0.55rem 1.1rem;
+  border: 1.5px solid rgba(255, 255, 255, 0.7);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.12);
+  font-size: clamp(0.95rem, 1.1vw, 1.05rem);
+  font-weight: 600;
+}
+.back {
+  display: block;
+  width: fit-content;
+  margin-top: 1.6rem;
+  padding: 0.3rem 0;
+  color: inherit;
+  font-weight: 600;
+  text-decoration: none;
+  opacity: 0.85;
+  transition: opacity 200ms var(--ease-out), transform 300ms var(--ease-out);
+}
+@media (hover: hover) and (pointer: fine) {
+  .back:hover { opacity: 1; transform: translateX(-4px); }
+}
+
+.soon-photo { margin: 0; }
+.soon-photo .frame { width: min(100%, 64vh); margin-left: auto; }
+/* the cut-out appears just after the page lands, like on the work cards */
+.soon-photo.in .cutout { opacity: 1; transform: none; }
+
+@media (max-width: 720px) {
+  .soon { grid-template-columns: 1fr; row-gap: 5rem; padding-top: 16vh; }
+  .soon-photo .frame { width: 82%; }
+}
+
+/* ---- ideation ---- */
+/* a short intro paragraph under a section heading */
+.case-lead {
+  max-width: 52ch;
+  font-size: clamp(1.1rem, 1.45vw, 1.3rem);
+  line-height: 1.5;
+  font-weight: 500;
+  margin-bottom: 10vh;
+}
+
+/* sketchbook pages (spine cropped, paper lifted to white): side by side, straight
+   on the sheet with no frame. Click one to read the notes full-screen (.lightbox). */
+.case-sketches {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  column-gap: 4vw;
+  align-items: start;
+}
+.sketch-page { margin: 0; }
+.sketch-page:nth-child(2) { transition-delay: 120ms; }
+.sketch-paper {
+  display: block;
+  width: 100%;
+  padding: 0;
+  border: 0;
+  background: none;
+  font: inherit;
+  transition: transform 450ms var(--ease-out);
+}
+.sketch-paper img { display: block; width: 100%; height: auto; }
+.sketch-paper:focus-visible { outline: 2px solid var(--blue); outline-offset: 6px; }
+@media (hover: hover) and (pointer: fine) {
+  .sketch-paper:hover { transform: translateY(-6px); }  /* lifts a little: it's clickable */
+}
+
+/* ---- lightbox: one image, full-screen ---- */
+.lightbox {
+  position: fixed;
+  inset: 0;
+  z-index: 9000;              /* above the nav, below the custom cursor (9999) */
+  display: grid;
+  place-items: center;
+  padding: 5vh 5vw;
+  background: rgba(10, 28, 44, 0.84);
+  animation: lb-in 220ms var(--ease-out);
+}
+.lightbox[hidden] { display: none; }
+.lightbox.closing { animation: lb-out 180ms ease-in forwards; }
+.lightbox-body {
+  display: grid;
+  place-items: center;
+  max-width: 100%;
+  max-height: 100%;
+  min-height: 0;
+}
+
+/* ---- concept evaluation matrix (a panel in the lightbox) ---- */
+.matrix {
+  width: min(820px, 100%);
+  max-height: 90vh;
+  overflow: auto;
+  padding: clamp(1.4rem, 3vw, 2.6rem);
+  background: #fff;
+  color: var(--ink);
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.35);
+  animation: lb-zoom 300ms var(--ease-out);
+}
+.matrix-title {
+  font-size: clamp(1.3rem, 2.2vw, 1.8rem);
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  line-height: 1.2;
+}
+.matrix-title span { font-weight: 500; opacity: 0.62; }
+.matrix-note {
+  margin: 0.8rem 0 1.8rem;
+  max-width: 56ch;
+  font-size: 1rem;
+  line-height: 1.5;
+  font-weight: 500;
+}
+.matrix-scroll { overflow-x: auto; }
+.matrix table {
+  width: 100%;
+  min-width: 560px;
+  border-collapse: collapse;
+  font-variant-numeric: tabular-nums;
+}
+.matrix th,
+.matrix td {
+  padding: 0.75rem 0.6rem;
+  border-bottom: 1.5px solid rgba(17, 17, 17, 0.12);
+  font-size: 1rem;
+  line-height: 1.3;
+  text-align: center;
+}
+.matrix thead th {
+  vertical-align: bottom;
+  font-weight: 700;
+  border-bottom-color: rgba(17, 17, 17, 0.4);
+}
+.matrix thead th span {
+  display: block;
+  margin-top: 0.2rem;
+  font-size: 0.85rem;
+  font-weight: 500;
+  opacity: 0.7;
+}
+.matrix th[scope="row"] { text-align: left; font-weight: 600; }
+.matrix th[scope="row"] span { font-weight: 500; opacity: 0.62; }
+.matrix th:first-child { padding-left: 0; }
+.matrix td:nth-child(2) { opacity: 0.62; }      /* the 0 baseline column */
+.matrix td.pos { color: var(--blue); font-weight: 600; }
+.matrix tfoot th,
+.matrix tfoot td {
+  border-bottom: 0;
+  border-top: 1.5px solid rgba(17, 17, 17, 0.4);
+  font-weight: 700;
+  font-size: 1.1rem;
+}
+.matrix tfoot td.best {
+  color: var(--blue);
+}
+
+.lightbox-img {
+  display: block;
+  max-width: 100%;
+  max-height: 90vh;
+  width: auto;
+  height: auto;
+  background: #fff;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.35);
+  animation: lb-zoom 300ms var(--ease-out);
+}
+.lightbox-close {
+  position: absolute;
+  top: clamp(0.8rem, 2vw, 1.6rem);
+  right: clamp(0.8rem, 2vw, 1.6rem);
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  border: 1.5px solid rgba(255, 255, 255, 0.7);
+  background: rgba(255, 255, 255, 0.12);
+  color: #fff;
+  font: inherit;
+  font-size: 1.6rem;
+  line-height: 1;
+  transition: background 200ms var(--ease-out);
+}
+.lightbox-close:hover { background: rgba(255, 255, 255, 0.25); }
+.lightbox-close:focus-visible { outline: 2px solid #fff; outline-offset: 3px; }
+@keyframes lb-in { from { opacity: 0; } }
+@keyframes lb-out { to { opacity: 0; } }
+@keyframes lb-zoom { from { opacity: 0; transform: scale(0.96); } }
+
+/* the three concepts in a row: each drawing fits the same box so the labels line up */
+.case-concepts {
+  margin-top: 16vh;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  column-gap: 4vw;
+}
+.concept { margin: 0; }
+.concept:nth-child(2) { transition-delay: 120ms; }
+.concept:nth-child(3) { transition-delay: 240ms; }
+.concept-img { aspect-ratio: 3 / 4; }
+.concept-img img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+.concept figcaption {
+  margin-top: 1.2rem;
+  padding-top: 1rem;
+  border-top: 1.5px solid rgba(17, 17, 17, 0.15);
+  font-size: clamp(1.05rem, 1.35vw, 1.25rem);
+  font-weight: 700;
+}
+.concept-name {
+  display: block;
+  margin-top: 0.25rem;
+  font-size: clamp(0.95rem, 1.1vw, 1.05rem);
+  font-weight: 500;
+}
+
+/* intro line right above the concepts (the concepts' own top margin moves up to it) */
+.case-lead--concepts { margin: 16vh 0 6vh; }
+.case-lead--concepts + .case-concepts { margin-top: 0; }
+
+/* a text button that reads like a link (opens the matrix) */
+.link-btn {
+  margin-top: 1.4rem;
+  padding: 0.3rem 0;
+  border: 0;
+  background: none;
+  color: var(--blue);
+  font: inherit;
+  font-size: clamp(1rem, 1.2vw, 1.1rem);
+  font-weight: 700;
+  text-decoration: underline;
+  text-decoration-thickness: 1.5px;
+  text-underline-offset: 0.25em;
+}
+.link-btn span { display: inline-block; transition: transform 300ms var(--ease-out); }
+@media (hover: hover) and (pointer: fine) {
+  .link-btn:hover span { transform: translateX(4px); }
+}
+.link-btn:focus-visible { outline: 2px solid var(--blue); outline-offset: 4px; }
+
+/* evaluation + notes side by side under the concepts */
+.case-eval {
+  margin-top: 12vh;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  column-gap: 6vw;
+  align-items: start;
+}
+.case-eval .case-sub { margin-bottom: 1.4rem; }
+.case-eval p,
+.case-notes li {
+  max-width: 50ch;
+  font-size: clamp(1rem, 1.2vw, 1.1rem);
+  line-height: 1.55;
+  font-weight: 500;
+}
+.case-eval > div:nth-child(2) { transition-delay: 120ms; }
+.case-notes { list-style: none; display: grid; gap: 1rem; }
+.case-notes li { position: relative; padding-left: 1.3em; }
+.case-notes li::before {
+  content: "→";
+  position: absolute;
+  left: 0;
+  color: var(--blue);
+  font-weight: 700;
+}
+
+@media (max-width: 720px) {
+  .case-sketches { grid-template-columns: 1fr; row-gap: 2.5rem; }
+  .sketch-page { transition-delay: 0ms !important; }
+  .case-concepts { grid-template-columns: 1fr; row-gap: 3rem; }
+  .concept { transition-delay: 0ms !important; }
+  .concept-img { aspect-ratio: auto; max-height: 70vh; }
+  .concept-img img { height: auto; max-height: 70vh; }
+  .case-eval { grid-template-columns: 1fr; row-gap: 3rem; }
+  .case-compare { grid-template-columns: 1fr; row-gap: 2.8rem; }
+  .case-option { transition-delay: 0ms !important; }
+  .case-criteria li { grid-template-columns: 2.4rem 1fr; row-gap: 0.4rem; }
+  .crit-desc { grid-column: 2; }
+}
+
+@media (max-width: 720px) {
+  .case-logo { width: min(72vw, 360px); top: 14vh; }
+  .case-intro { flex-direction: column; gap: 0.8rem; }
+  .case-pair { grid-template-columns: 1fr; row-gap: 3.5rem; }
+  .case-pair .case-fig:nth-child(2) { margin-top: 0; }
+  .case-takeaway { margin-left: 0; }
+}

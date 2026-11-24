@@ -15,6 +15,11 @@
       <feGaussianBlur id="round-blur" in="SourceGraphic" stdDeviation="2" result="b"/>
       <feColorMatrix in="b" type="matrix" values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 24 -10"/>
     </filter>
+    <!-- same softening for the section headings on project pages (like Illustrator's path smoothing) -->
+    <filter id="round-head" x="-5%" y="-20%" width="110%" height="140%" color-interpolation-filters="sRGB">
+      <feGaussianBlur id="round-head-blur" in="SourceGraphic" stdDeviation="2" result="b"/>
+      <feColorMatrix in="b" type="matrix" values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 24 -10"/>
+    </filter>
   </svg>
 
   <!-- background: slowed, blurred aquarium video, tinted blue, with film grain.
@@ -52,7 +57,7 @@
     <main class="contents" id="work">
       <div class="projects">
 
-        <a class="project" href="#" data-speed="0">
+        <a class="project" href="#isogu" data-speed="0">
           <div class="head">
             <span class="num vp" data-from="700" data-to="900" data-radius="90" data-pull="0.06">01</span>
             <h2 class="title vp" data-from="700" data-to="900" data-radius="110" data-pull="0.06">isogu</h2>
@@ -67,7 +72,7 @@
           <p class="desc">Physical prototyping, Fusion360 CAD, 3D printing, brand design, CMF design</p>
         </a>
 
-        <a class="project" href="#" data-speed="0.09">
+        <a class="project" href="#kove" data-speed="0.09">
           <div class="head">
             <span class="num vp" data-from="700" data-to="900" data-radius="90" data-pull="0.06">02</span>
             <h2 class="title vp" data-from="700" data-to="900" data-radius="110" data-pull="0.06">kove</h2>
@@ -82,7 +87,7 @@
           <p class="desc">Design thinking, rapid prototyping, woodworking</p>
         </a>
 
-        <a class="project" href="#" data-speed="0">
+        <a class="project" href="#nimi" data-speed="0">
           <div class="head">
             <span class="num vp" data-from="700" data-to="900" data-radius="90" data-pull="0.06">03</span>
             <h2 class="title vp" data-from="700" data-to="900" data-radius="110" data-pull="0.06">nimi</h2>
@@ -284,6 +289,250 @@
 
       <p class="fun-fact" data-reveal>fun fact: i took the background video at the osaka aquarium!</p>
     </main>
+  </div>
+
+  <!-- ===================== project: isogu ===================== -->
+  <!-- slides in from the right when you click the isogu card -->
+  <div class="view view--project" id="isogu-view" data-title="isogu" hidden>
+    <main class="case">
+      <!-- full-screen product shot with the logo floating on the wall above the tin -->
+      <header class="case-hero">
+        <img class="case-hero-img" src="assets/isogu-hero.webp" alt="The silver isogu tin standing beside its lid on a white table" width="2400" height="1600" decoding="async">
+        <h1 class="case-logo">
+          <img src="assets/isogu-logo.webp" alt="isogu — homemade without the hassle" width="1092" height="598" decoding="async">
+        </h1>
+      </header>
+
+      <!-- the story, on a white sheet like the work page -->
+      <div class="case-sheet">
+        <section class="case-intro" data-reveal>
+          <span class="case-num">01</span>
+          <p class="case-tags">Physical prototyping, Fusion360 CAD, 3D printing, brand design, CMF design</p>
+        </section>
+
+        <!-- context: why making matcha at home is a hassle -->
+        <section class="case-section">
+          <h2 class="case-heading vp" data-from="700" data-to="900" data-radius="140" data-pull="0.05">context</h2>
+
+          <div class="case-pair">
+            <figure class="case-fig" data-reveal>
+              <div class="case-img">
+                <img src="assets/isogu-context-whisk.webp" alt="Hands whisking matcha in a ceramic bowl with a bamboo whisk" width="1400" height="933" loading="lazy" decoding="async">
+              </div>
+              <figcaption>Making matcha at home saves money in the long run, but the tools are costly and take up space, which is a lot to ask of a new home barista with a small kitchen.</figcaption>
+            </figure>
+            <figure class="case-fig" data-reveal>
+              <div class="case-img">
+                <img src="assets/isogu-context-sift.webp" alt="Sifting matcha powder through a small strainer into a bamboo bowl on a kitchen scale" width="1400" height="933" loading="lazy" decoding="async">
+              </div>
+              <figcaption>Repetitive steps like measuring eat up time that busy people don't have when they're rushing to work or their next appointment.</figcaption>
+            </figure>
+          </div>
+
+          <p class="case-takeaway" data-reveal>These start-up costs and time commitments keep people from making a quick, good matcha at home, so they keep paying café prices or give up on matcha altogether.</p>
+        </section>
+
+        <!-- "how can we" statement: the design question the rest of the story answers -->
+        <section class="case-hcw" data-reveal>
+          <p>How can the matcha making process be <em>more economical and efficient</em> for <em>busy, new home baristas with limited resources</em>?</p>
+        </section>
+
+        <!-- research: what's out there already, and what isogu has to do -->
+        <section class="case-section">
+          <h2 class="case-heading vp" data-from="700" data-to="900" data-radius="140" data-pull="0.05">research</h2>
+
+          <div class="case-block">
+            <h3 class="case-sub">existing solutions</h3>
+            <div class="case-compare">
+              <article class="case-option" data-reveal>
+                <h4>Single-use matcha sachets</h4>
+                <ul class="proscons">
+                  <li class="pro"><span class="sr">Pro: </span>Convenient on the go</li>
+                  <li class="con"><span class="sr">Con: </span>Lots of plastic waste</li>
+                  <li class="con"><span class="sr">Con: </span>Little customization: the amount of matcha, sugar and dairy is already decided</li>
+                </ul>
+              </article>
+              <article class="case-option" data-reveal>
+                <h4>Ready-made matcha latte powder</h4>
+                <ul class="proscons">
+                  <li class="con"><span class="sr">Con: </span>Little customization</li>
+                  <li class="con"><span class="sr">Con: </span>Taste is usually compromised for shelf life and convenience</li>
+                  <li class="con"><span class="sr">Con: </span>High in sugar</li>
+                </ul>
+              </article>
+              <article class="case-option" data-reveal>
+                <h4>Shaker bottles</h4>
+                <ul class="proscons">
+                  <li class="pro"><span class="sr">Pro: </span>Efficient, with no whisking</li>
+                  <li class="con"><span class="sr">Con: </span>You still have to measure out the powder</li>
+                  <li class="con"><span class="sr">Con: </span>One more bottle to wash</li>
+                  <li class="con"><span class="sr">Con: </span>Takes the ritual out of making matcha</li>
+                </ul>
+              </article>
+            </div>
+          </div>
+
+          <div class="case-block">
+            <h3 class="case-sub">criteria for success</h3>
+            <ol class="case-criteria">
+              <li data-reveal><span class="crit-name">efficient</span><span class="crit-desc">Fewer steps than the usual routine.</span></li>
+              <li data-reveal><span class="crit-name">straightforward</span><span class="crit-desc">Works without any hiccups, or the chance of them.</span></li>
+              <li data-reveal><span class="crit-name">storage</span><span class="crit-desc">Stores seamlessly with everyday kitchen items, and cuts down the space matcha equipment takes up.</span></li>
+              <li data-reveal><span class="crit-name">delight</span><span class="crit-desc">Keeps the joy of traditional matcha making.</span></li>
+              <li data-reveal><span class="crit-name">tastiness</span><span class="crit-desc">Doesn't change the taste of matcha, and lets people make their drink the way they like it.</span></li>
+              <li data-reveal><span class="crit-name">mess-free</span><span class="crit-desc">No spills or stray powder.</span></li>
+              <li data-reveal><span class="crit-name">aesthetically familiar</span><span class="crit-desc">Blends in with the equipment people already have.</span></li>
+            </ol>
+          </div>
+        </section>
+
+        <!-- ideation: sketchbook pages, then the ideas taken digital -->
+        <section class="case-section">
+          <h2 class="case-heading vp" data-from="700" data-to="900" data-radius="140" data-pull="0.05">ideation</h2>
+
+          <p class="case-lead" data-reveal>I started with quick sketches of ways to cut out the measuring and sifting: built-in sieves, compartments that hold exactly 4g, tiny weighing scales, and tools that combine the tin with the whisk or chashaku.</p>
+
+          <div class="case-sketches">
+            <figure class="sketch-page" data-reveal>
+              <button class="sketch-paper" type="button" data-zoom aria-label="Enlarge sketchbook page 1">
+                <img src="assets/isogu-sketches-1.webp" alt="Sketchbook page of tin concepts: a lid measuring exactly 4g, a funnel with a built-in sieve, a flip-away measuring cup, a push-out 4g compartment, and a chashaku-shaped scoop" width="1800" height="1367" loading="lazy" decoding="async">
+              </button>
+            </figure>
+            <figure class="sketch-page" data-reveal>
+              <button class="sketch-paper" type="button" data-zoom aria-label="Enlarge sketchbook page 2">
+                <img src="assets/isogu-sketches-2.webp" alt="Sketchbook page of form ideas: a bamboo-shaped tin with a sieve, a pull-tab tin, built-in weight sensing, a tin attached to a whisk, a combined chashaku and whisk, a bowl with a sieve, and a bowl with a tiny weighing scale" width="1800" height="1364" loading="lazy" decoding="async">
+              </button>
+            </figure>
+          </div>
+
+          <!-- the three concepts, taken digital -->
+          <p class="case-lead case-lead--concepts" data-reveal>I took 3 of the best concepts digital, and compared them to existing products.</p>
+          <div class="case-concepts">
+            <figure class="concept" data-reveal>
+              <div class="concept-img">
+                <img src="assets/isogu-concept-1.webp" alt="Concept 1: a jar with a blue lid and a pull-out drawer at the base that holds a measured scoop of matcha, with diagrams of the drawer filling and tipping out" width="1135" height="1200" loading="lazy" decoding="async">
+              </div>
+              <figcaption>concept 1<span class="concept-name">Push-out Spoon</span></figcaption>
+            </figure>
+            <figure class="concept" data-reveal>
+              <div class="concept-img">
+                <img src="assets/isogu-concept-2.webp" alt="Concept 2: a tin with an angled sieve spout, and its lid with a small cup in the centre that the spout pours matcha into" width="756" height="1200" loading="lazy" decoding="async">
+              </div>
+              <figcaption>concept 2<span class="concept-name">Built-in Spout &amp; Sieve</span></figcaption>
+            </figure>
+            <figure class="concept" data-reveal>
+              <div class="concept-img">
+                <img src="assets/isogu-concept-3.webp" alt="Concept 3: a bamboo tin shaped like a matcha whisk with a sieve inside, and a cross-section showing matcha sifting down through it" width="591" height="1200" loading="lazy" decoding="async">
+              </div>
+              <figcaption>concept 3<span class="concept-name">Whisk with Built-in Sieve</span></figcaption>
+            </figure>
+          </div>
+
+          <!-- Sam's own wording, unchanged -->
+          <div class="case-eval">
+            <div data-reveal>
+              <h3 class="case-sub">concept evaluation</h3>
+              <p>Both Concept 2 and 3 proved to be considerably better than Concept 1. While the two ranked similarly, Concept 3 scored higher on the less significant categories, covering smaller details that Concept 2 might have missed.</p>
+              <button class="link-btn" type="button" data-zoom-panel="matrix-tpl">view concept evaluation matrix <span aria-hidden="true">→</span></button>
+            </div>
+            <div data-reveal>
+              <h3 class="case-sub">extra notes</h3>
+              <ul class="case-notes">
+                <li>Concept 2 allows for an entire brand identity, but is limited to being sold at one company</li>
+                <li>Concept 3 is much more flexible with branding, but is easily duplicated and can be easily swept up by competition with cheaper/bulk manufacturers</li>
+              </ul>
+            </div>
+          </div>
+        </section>
+      </div>
+    </main>
+  </div>
+
+  <!-- ===================== project: kove (details coming soon) ===================== -->
+  <div class="view view--project" id="kove-view" data-title="kove" hidden>
+    <main class="case">
+      <div class="soon">
+        <div class="soon-text">
+          <span class="soon-num">02</span>
+          <h1 class="soon-title vp" data-from="700" data-to="900" data-radius="140" data-pull="0.05">kove</h1>
+          <p class="soon-tags">Design thinking, rapid prototyping, woodworking</p>
+          <p class="soon-note">more details coming soon!</p>
+          <a class="back" href="#work">← back to work</a>
+        </div>
+        <figure class="soon-photo" data-reveal>
+          <div class="frame">
+            <div class="media">
+              <img src="assets/kove.jpg" alt="A pile of hand-carved wooden spoons, forks and knives" decoding="async">
+            </div>
+            <img class="cutout cutout--kove" src="assets/kove-cutout.webp" alt="" aria-hidden="true" decoding="async">
+          </div>
+        </figure>
+      </div>
+    </main>
+  </div>
+
+  <!-- ===================== project: nimi (details coming soon) ===================== -->
+  <div class="view view--project" id="nimi-view" data-title="nimi" hidden>
+    <main class="case">
+      <div class="soon">
+        <div class="soon-text">
+          <span class="soon-num">03</span>
+          <h1 class="soon-title vp" data-from="700" data-to="900" data-radius="140" data-pull="0.05">nimi</h1>
+          <p class="soon-tags">Rapid ideation and iteration, concept development, sketching, rendering</p>
+          <p class="soon-note">more details coming soon!</p>
+          <a class="back" href="#work">← back to work</a>
+        </div>
+        <figure class="soon-photo" data-reveal>
+          <div class="frame">
+            <div class="media">
+              <img src="assets/nimi.jpg" alt="Rendering of nimi, a pale cloud-shaped camera for kids with a sun-shaped yellow lens and a yellow strap" decoding="async">
+            </div>
+            <img class="cutout cutout--nimi" src="assets/nimi-cutout.webp" alt="" aria-hidden="true" decoding="async">
+          </div>
+        </figure>
+      </div>
+    </main>
+  </div>
+
+  <!-- isogu concept evaluation matrix: opened in the lightbox by the
+       "view concept evaluation matrix" button. 0 = existing products (baseline). -->
+  <template id="matrix-tpl">
+    <div class="matrix">
+      <h2 class="matrix-title">concept evaluation matrix <span>(pre-prototypes)</span></h2>
+      <p class="matrix-note">0 is the baseline: existing products. Each concept is scored by how much better (+) or worse (−) it does in each category.</p>
+      <div class="matrix-scroll">
+        <table>
+          <thead>
+            <tr>
+              <th scope="col">category</th>
+              <th scope="col">existing products</th>
+              <th scope="col">concept 1<span>Push-out Spoon</span></th>
+              <th scope="col">concept 2<span>Built-in Spout &amp; Sieve</span></th>
+              <th scope="col">concept 3<span>Whisk with Built-in Sieve</span></th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><th scope="row">Efficiency <span>(5)</span></th><td>0</td><td class="neg">−2</td><td class="neg">−2</td><td class="neg">−3</td></tr>
+            <tr><th scope="row">Straightforward <span>(5)</span></th><td>0</td><td class="neg">−4</td><td class="neg">−1</td><td class="neg">−1</td></tr>
+            <tr><th scope="row">Storage <span>(5)</span></th><td>0</td><td class="pos">+1</td><td class="pos">+1</td><td class="pos">+1</td></tr>
+            <tr><th scope="row">Delight <span>(5)</span></th><td>0</td><td class="pos">+2</td><td class="pos">+5</td><td class="pos">+5</td></tr>
+            <tr><th scope="row">Tastiness <span>(5)</span></th><td>0</td><td class="pos">+3</td><td class="pos">+4</td><td class="pos">+5</td></tr>
+            <tr><th scope="row">Mess-free <span>(3)</span></th><td>0</td><td class="neg">−1</td><td class="neg">−1</td><td class="pos">+2</td></tr>
+            <tr><th scope="row">Aesthetically familiar <span>(2)</span></th><td>0</td><td class="pos">+1</td><td class="pos">+1</td><td class="pos">+2</td></tr>
+          </tbody>
+          <tfoot>
+            <tr><th scope="row">total</th><td>0</td><td>0</td><td>+7</td><td class="best">+11</td></tr>
+          </tfoot>
+        </table>
+      </div>
+    </div>
+  </template>
+
+  <!-- full-screen view for zoomable images (sketchbook pages) and panels (the matrix).
+       Not a <dialog>: the top layer would hide the custom cursor. -->
+  <div class="lightbox" id="lightbox" data-lenis-prevent role="dialog" aria-modal="true" aria-label="Enlarged view" hidden>
+    <div class="lightbox-body"></div>
+    <button class="lightbox-close" type="button" aria-label="Close">×</button>
   </div>
 
   <script src="https://cdn.jsdelivr.net/npm/lenis@1.1.20/dist/lenis.min.js"></script>

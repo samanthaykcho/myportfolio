@@ -88,12 +88,15 @@ function animate() {
   requestAnimationFrame(animate);
 }
 
-// Corner rounding on the name scales with the text size.
+// Corner rounding scales with the text size: the name, and the section
+// headings on project pages (each has its own filter, since they differ in size).
 function updateRounding() {
-  const name = document.querySelector(".name");
-  if (!name) return; // only on the home page
-  const size = parseFloat(getComputedStyle(name).fontSize);
-  document.getElementById("round-blur").setAttribute("stdDeviation", (size * 0.016).toFixed(2));
+  [[".name", "round-blur"], [".case-heading", "round-head-blur"]].forEach(([sel, blurId]) => {
+    const el = document.querySelector(sel);
+    if (!el) return;
+    const size = parseFloat(getComputedStyle(el).fontSize);
+    document.getElementById(blurId).setAttribute("stdDeviation", (size * 0.016).toFixed(2));
+  });
 }
 window.addEventListener("resize", updateRounding);
 updateRounding();
@@ -428,7 +431,7 @@ requestAnimationFrame(updateVideoBlur);
 
     const t = e.target instanceof Element ? e.target : null;
     const inText = !!t?.closest(TEXT);
-    const onSheet = !!t?.closest(".contents");
+    const onSheet = !!t?.closest(".contents, .case-sheet, .matrix"); // the white sheets (not the hero photos: Sam wants white there)
     cursor.classList.toggle("hover", !!t?.closest(CLICKABLE));
     cursor.classList.toggle("text", inText);
     cursor.classList.toggle("light", onSheet);
@@ -437,7 +440,7 @@ requestAnimationFrame(updateVideoBlur);
     // Only over the video, and only now and then.
     if (travelled > DRIFT_EVERY) {
       travelled = 0;
-      if (!onSheet && !inText && Math.random() < DRIFT_CHANCE) drift();
+      if (!onSheet && !inText && !t?.closest(".lightbox") && Math.random() < DRIFT_CHANCE) drift();
     }
   }, { passive: true });
 
@@ -500,7 +503,25 @@ const homeIcon = document.querySelector(".home");
 const homeView = document.getElementById("home-view");
 const aboutView = document.getElementById("about-view");
 const navAbout = document.getElementById("nav-about");
-const isAbout = () => !aboutView.hidden;
+const navWork = document.getElementById("nav-work");
+
+// Every page besides home, by its hash. Project pages are the .view--project
+// blocks (id "<name>-view" → "#<name>"), so a new project only needs markup.
+const pages = { "#about": aboutView };
+document.querySelectorAll(".view--project").forEach((v) => {
+  pages["#" + v.id.replace(/-view$/, "")] = v;
+});
+let current = null;                       // the page showing, or null for home
+const isAbout = () => current === aboutView;
+
+// what slides in, one after another, when a page arrives
+function entranceItems(view) {
+  return view === aboutView
+    ? view.querySelectorAll(".about-photo, .about-text > *")
+    : view.querySelector(".case-hero")
+      ? view.querySelectorAll(".case-logo")
+      : view.querySelectorAll(".soon-text > *, .soon-photo");   // "coming soon" pages
+}
 
 // Pin the name block's width so letters getting heavier don't shift it around.
 // Measured only while the home view is visible (a hidden view measures 0 wide),
@@ -513,31 +534,39 @@ function pinLockup() {
   lockup.style.width = `${lockup.getBoundingClientRect().width / size}em`;
 }
 
-// The nav turns dark when it sits over the white contents page.
+// The nav turns dark when it sits over something light: the white contents
+// page, or a full project page (light hero photo, then its white sheet).
+// "Coming soon" pages sit on the video, so the nav stays white there.
 function updateNav() {
-  const onLight = !isAbout() && contentsSheet.getBoundingClientRect().top <= 40;
-  nav.classList.toggle("on-light", onLight);
-  homeIcon.classList.toggle("on-light", onLight);
+  const onSheet = !current && contentsSheet.getBoundingClientRect().top <= 40;
+  const onProject = !!current && !!current.querySelector(".case-hero");
+  nav.classList.toggle("on-light", onSheet || onProject);
+  homeIcon.classList.toggle("on-light", onSheet || onProject);
   // once the work page covers the screen, the top nav tucks away (it's in the footer)
-  nav.classList.toggle("tucked", onLight);
+  nav.classList.toggle("tucked", onSheet);
 }
 lenis.on("scroll", updateNav);
 window.addEventListener("resize", updateNav);
 
-// "about" sits a little heavier at rest while the about view is showing.
+// The current section's nav link sits a little heavier at rest:
+// "about" on the about page, "work" on a project page.
+function setCurrent(link, on) {
+  if (on) link.setAttribute("aria-current", "page");
+  else link.removeAttribute("aria-current");
+  const g = groups.find((g) => g.el === link);
+  if (g) g.from = on ? 800 : 600;
+}
 function markCurrent() {
-  const about = isAbout();
-  if (about) navAbout.setAttribute("aria-current", "page");
-  else navAbout.removeAttribute("aria-current");
-  const g = groups.find((g) => g.el === navAbout);
-  if (g) g.from = about ? 800 : 600;
-  document.title = about ? "about – samantha cho" : "samantha cho";
+  setCurrent(navAbout, current === aboutView);
+  setCurrent(navWork, !!current && current !== aboutView);
+  const name = current === aboutView ? "about" : current && current.dataset.title;
+  document.title = name ? `${name} – samantha cho` : "samantha cho";
 }
 
-// ---------- Router: slide between the home and about views ----------
-// The two views live in one page so the background video never restarts.
-// Going to about: home slides out to the left, about slides in from the right.
-// Going home: the reverse.
+// ---------- Router: slide between home, about and the project pages ----------
+// All views live in one page so the background video never restarts.
+// Going to a page: whatever's showing slides out to the left, the page slides in
+// from the right. Going home: the reverse.
 const SLIDE = { duration: 900, easing: "cubic-bezier(0.77, 0, 0.175, 1)", fill: "forwards" };
 let busy = false;
 let savedHomeY = 0;
@@ -559,22 +588,31 @@ function homeTarget(hash) {
 }
 function refresh() { updateNav(); updateParallax(); }
 
-async function showAbout(animate) {
-  if (isAbout()) return;
-  savedHomeY = window.scrollY;
-  aboutView.hidden = false;
+async function showPage(view, animate) {
+  const from = current;
+  if (from === view) return;
+  if (!from) savedHomeY = window.scrollY;      // remember where you were on home
+  const leaving = from || homeView;
+  if (from) fixInPlace(from, -window.scrollY); // freeze the old page where it is
+  current = view;
+  view.hidden = false;
   markCurrent();
-  if (!animate) { homeView.hidden = true; jumpTo(0); refresh(); return; }
+  updateNav();
+  if (!animate) { leaving.hidden = true; release(leaving); jumpTo(0); refresh(); return; }
 
   busy = true; lenis.stop();
-  fixInPlace(aboutView, 0);
-  const out = homeView.animate([{ transform: "none" }, { transform: "translateX(-100%)" }], SLIDE);
+  fixInPlace(view, 0);
+  view.style.zIndex = "2";
+  const out = leaving.animate([{ transform: "none" }, { transform: "translateX(-100%)" }], SLIDE);
+  // a project's hero photo pushes in alongside, like the next page of a book
+  const hero = view.querySelector(".case-hero");
+  if (hero) hero.animate([{ transform: "translateX(100%)" }, { transform: "none" }], { ...SLIDE, fill: "backwards" });
 
-  // Each bio element slides in on its own, in reading order. The gaps shrink as
+  // Each element slides in on its own, in reading order. The gaps shrink as
   // it goes (uneven, not a metronome), so it reads as one swoop, not a queue.
-  const items = [...aboutView.querySelectorAll(".about-photo, .about-text > *")];
-  const delays = [120, 200, 270, 325, 370, 405, 435, 460];
-  items.forEach((el, i) => {
+  // (on a project page, the logo waits a little longer so it trails the photo)
+  const delays = hero ? [300, 420] : [120, 200, 270, 325, 370, 405, 435, 460];
+  entranceItems(view).forEach((el, i) => {
     if (el.hasAttribute("data-reveal")) el.classList.add("in"); // the slide is their entrance
     el.animate(
       [{ transform: "translateX(70vw)", opacity: 0 }, { transform: "none", opacity: 1 }],
@@ -583,29 +621,32 @@ async function showAbout(animate) {
     );
   });
 
-  await out.finished;                           // free the page once home is gone; items keep settling
-  homeView.hidden = true;
+  await out.finished;                           // free the page once the old one is gone; items keep settling
+  leaving.hidden = true;
   jumpTo(0);
-  release(homeView); release(aboutView);
+  release(leaving); release(view);
   lenis.start(); busy = false; refresh();
 }
 
 async function showHome(hash, fromHistory, animate) {
-  if (!isAbout()) { lenis.scrollTo(homeTarget(hash)); return; }  // already home: just glide
-  fixInPlace(aboutView, -window.scrollY);       // freeze about where it is
+  const from = current;
+  if (!from) { lenis.scrollTo(homeTarget(hash)); return; }  // already home: just glide
+  fixInPlace(from, -window.scrollY);            // freeze the page where it is
+  current = null;
   homeView.hidden = false;
   pinLockup();                                  // measure now that home is visible again
-  const y = fromHistory && !hash ? savedHomeY : homeTarget(hash);
+  // back button: land exactly where you were (e.g. next to the card you clicked)
+  const y = fromHistory ? savedHomeY : homeTarget(hash);
   jumpTo(y);
-  if (!animate) { aboutView.hidden = true; release(aboutView); markCurrent(); refresh(); return; }
+  updateNav();                                  // nav colour follows the page coming in
+  if (!animate) { from.hidden = true; release(from); markCurrent(); refresh(); return; }
 
   busy = true; lenis.stop();
   const inn = homeView.animate([{ transform: "translateX(-100%)" }, { transform: "none" }], SLIDE);
-  const out = aboutView.animate([{ transform: "none" }, { transform: "translateX(100%)" }], SLIDE);
-  aboutView.hidden = false;
+  const out = from.animate([{ transform: "none" }, { transform: "translateX(100%)" }], SLIDE);
   await Promise.all([out.finished, inn.finished]);
-  aboutView.hidden = true;
-  release(homeView); release(aboutView);
+  from.hidden = true;
+  release(homeView); release(from);
   markCurrent();
   lenis.start(); busy = false; refresh();
 }
@@ -614,7 +655,7 @@ async function showHome(hash, fromHistory, animate) {
 const contactSection = document.getElementById("contact");
 async function showContact(animate) {
   const wasAbout = isAbout();
-  await showAbout(animate);
+  await showPage(aboutView, animate);
   // let the page land for a beat so the slide and the scroll read as two moves
   if (animate && !wasAbout) await new Promise((r) => setTimeout(r, 150));
   // the about page was pinned in place during the slide, so Lenis still thinks the
@@ -630,16 +671,17 @@ async function showContact(animate) {
 }
 
 function route(hash, fromHistory, animate = true) {
-  if (hash === "#about") {
-    if (isAbout()) lenis.scrollTo(0);           // already there: glide back to the top
-    else showAbout(animate);
+  const page = pages[hash];
+  if (page) {
+    if (current === page) lenis.scrollTo(0);    // already there: glide back to the top
+    else showPage(page, animate);
   }
   else if (hash === "#contact") showContact(animate);
   else showHome(hash, fromHistory, animate);
 }
 
-// nav links, the ray icon: change the URL and slide, without reloading
-document.querySelectorAll('.nav a, .foot-nav a, a.home').forEach((a) => {
+// nav links, the ray icon, project cards: change the URL and slide, without reloading
+document.querySelectorAll('.nav a, .foot-nav a, a.home, a.back, a.project:not([href="#"])').forEach((a) => {
   a.addEventListener("click", (e) => {
     e.preventDefault();
     if (busy) return;
@@ -649,8 +691,8 @@ document.querySelectorAll('.nav a, .foot-nav a, a.home').forEach((a) => {
   });
 });
 
-// placeholder links (projects, contact) don't go anywhere yet; keep them from
-// changing the URL and sending you back to the top
+// placeholder links (projects without a page yet) don't go anywhere; keep them
+// from changing the URL and sending you back to the top
 document.addEventListener("click", (e) => {
   const a = e.target.closest('a[href="#"]');
   if (a && !a.matches(".home")) e.preventDefault();
@@ -659,8 +701,8 @@ document.addEventListener("click", (e) => {
 // browser back / forward buttons
 window.addEventListener("popstate", () => { if (!busy) route(location.hash, true); });
 
-// opened directly at index.html#about (or via the old about.html link)
-if (location.hash === "#about" || location.hash === "#contact") route(location.hash, false, false);
+// opened directly at a page (e.g. index.html#about, #isogu, or the old about.html link)
+if (pages[location.hash] || location.hash === "#contact") route(location.hash, false, false);
 markCurrent();
 updateNav();
 
@@ -726,3 +768,64 @@ if (contactForm) {
     }
   });
 }
+
+/* ---------- lightbox ----------
+   Full-screen view for a sketchbook page (buttons with data-zoom: shows their
+   image) or a panel (buttons with data-zoom-panel="<template id>": shows a copy
+   of that template, e.g. the concept evaluation matrix).
+   Closes on a click anywhere outside the image/panel, the × button, Esc, or the
+   browser back button. A plain overlay, not <dialog>, so the custom cursor
+   (z-index 9999) stays visible on top of it. */
+const lightbox = document.getElementById("lightbox");
+const lightboxBody = lightbox.querySelector(".lightbox-body");
+const lightboxClose = lightbox.querySelector(".lightbox-close");
+let lightboxOpener = null;
+
+function openLightbox(content, opener) {
+  lightboxOpener = opener;
+  lightboxBody.replaceChildren(content);
+  lightbox.classList.remove("closing");
+  lightbox.hidden = false;
+  lenis.stop();                                  // the page behind stays put
+  lightboxClose.focus({ preventScroll: true });
+}
+
+function closeLightbox() {
+  if (lightbox.hidden || lightbox.classList.contains("closing")) return;
+  lightbox.classList.add("closing");             // quick fade out, then hide
+  setTimeout(() => {
+    lightbox.hidden = true;
+    lightbox.classList.remove("closing");
+    lightboxBody.replaceChildren();
+    lenis.start();
+    if (lightboxOpener) lightboxOpener.focus({ preventScroll: true });
+  }, 180);
+}
+
+document.querySelectorAll("[data-zoom]").forEach((btn) => {
+  btn.addEventListener("click", () => {
+    const src = btn.querySelector("img");
+    const img = document.createElement("img");
+    img.className = "lightbox-img";
+    img.src = src.currentSrc || src.src;
+    img.alt = src.alt;
+    openLightbox(img, btn);
+  });
+});
+document.querySelectorAll("[data-zoom-panel]").forEach((btn) => {
+  btn.addEventListener("click", () => {
+    const tpl = document.getElementById(btn.dataset.zoomPanel);
+    openLightbox(tpl.content.firstElementChild.cloneNode(true), btn);
+  });
+});
+// anywhere outside the shown image/panel closes it (the backdrop, the × button)
+lightbox.addEventListener("click", (e) => {
+  const shown = lightboxBody.firstElementChild;
+  if (!shown || !shown.contains(e.target)) closeLightbox();
+});
+document.addEventListener("keydown", (e) => {
+  if (lightbox.hidden) return;
+  if (e.key === "Escape") closeLightbox();
+  if (e.key === "Tab") { e.preventDefault(); lightboxClose.focus(); } // keep focus inside
+});
+window.addEventListener("popstate", closeLightbox);
