@@ -7,6 +7,8 @@
   <link rel="stylesheet" href="https://use.typekit.net/tfd3zvu.css">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/lenis@1.1.20/dist/lenis.css">
   <link rel="stylesheet" href="style.css">
+  <!-- apply the saved background colourway before anything paints (see "Colourways" in script.js) -->
+  <script>try { document.documentElement.dataset.colourway = localStorage.getItem("colourway") || "aquarium"; } catch (e) { document.documentElement.dataset.colourway = "aquarium"; }</script>
 </head>
 <body>
   <!-- rounds off the corners of the name's letters (strength is set in script.js) -->
@@ -38,6 +40,11 @@
     <a class="vp" id="nav-work" href="#work" data-from="600" data-to="900" data-radius="80" data-pull="0.1">work</a>
     <a class="vp" id="nav-about" href="#about" data-from="600" data-to="900" data-radius="80" data-pull="0.1">about</a>
     <a class="vp" href="#contact" data-from="600" data-to="900" data-radius="80" data-pull="0.1">contact</a>
+    <!-- background colourway: swaps the video behind the site -->
+    <div class="cw-picker" role="group" aria-label="background">
+      <button class="cw cw--aquarium" type="button" data-cw="aquarium" aria-label="aquarium background" title="aquarium"></button>
+      <button class="cw cw--dark" type="button" data-cw="dark" aria-label="dark background" title="dark"></button>
+    </div>
   </nav>
 
   <!-- ===================== home view ===================== -->
@@ -135,7 +142,7 @@
           I’m a second year <mark class="hl" tabindex="0" style="--tilt: -3deg">industrial design student<span class="pop" aria-hidden="true"><img src="assets/pop-studio.webp" alt="" loading="lazy" decoding="async"><span class="cap">at the studio</span></span></mark> at the University of Illinois Urbana-Champaign, having lots of fun <mark class="hl" tabindex="0" style="--d: 1; --tilt: 2deg">thinking and designing for the user<span class="pop" aria-hidden="true"><img src="assets/pop-sketches.webp" alt="" loading="lazy" decoding="async"><span class="cap">always sketching</span></span></mark>.
         </p>
         <p data-reveal>
-          I was born and raised in <mark class="hl" tabindex="0" style="--tilt: 2.5deg">Kuala Lumpur, Malaysia<span class="pop" aria-hidden="true"><img src="assets/pop-malaysia.webp" alt="" loading="lazy" decoding="async"><span class="cap">best food on the planet</span></span></mark>, and have spent many winters and summers in <mark class="hl" tabindex="0" style="--d: 1; --tilt: -1.5deg">Taipei<span class="pop" aria-hidden="true"><img src="assets/pop-taipei.webp" alt="" loading="lazy" decoding="async"><span class="cap">4 years old on the metro!</span></span></mark> visiting family. Now, I’m in an exciting new chapter of life in Champaign, Illinois, exploring the vastly different everyday and design culture of the USA!
+          I was born and raised in <mark class="hl" tabindex="0" style="--tilt: 2.5deg">Kuala Lumpur, Malaysia<span class="pop" aria-hidden="true"><img src="assets/pop-malaysia.webp" alt="" loading="lazy" decoding="async"><span class="cap">best food on the planet</span></span></mark>, and have spent many winters and summers in <mark class="hl" tabindex="0" style="--d: 1; --tilt: -1.5deg">Taipei<span class="pop" aria-hidden="true"><img src="assets/pop-taipei.webp" alt="" loading="lazy" decoding="async"><span class="cap">4 years old on the metro!</span></span></mark> visiting family. Now, I’m in Champaign, Illinois, exploring the different everyday and design culture of <mark class="hl" tabindex="0" style="--d: 2; --tilt: 2deg">the USA<span class="pop" aria-hidden="true"><img src="assets/pop-hollywood.webp" alt="" loading="lazy" decoding="async"><span class="cap">hollywood</span></span></mark>!
         </p>
 
         <!-- what she's up to right now, sitting level with the bottom of the photo -->
@@ -211,6 +218,14 @@
               <p>Industrial Design + Data Science</p>
               <p class="muted">4.0 GPA · Dean’s List (F25, S26) · James G. Hansen Scholarship recipient</p>
             </div>
+            <div class="entry">
+              <div class="entry-head">
+                <strong>Taylor’s University Malaysia</strong>
+                <span class="when">Aug 2023 – May 2025</span>
+              </div>
+              <p>American Degree Program · Business</p>
+              <p class="muted">4.0 CGPA · Dean’s List · Excellence Award Scholarship recipient · Summa Cum Laude · Best Student in Business 2025</p>
+            </div>
           </div>
         </section>
 
@@ -230,8 +245,16 @@
               <p>Digital Marketing Intern</p>
             </div>
             <div class="entry">
+              <div class="entry-head"><strong>Taylor’s ADP Student Union</strong><span class="when">Sep 2024 – May 2025</span></div>
+              <p>Marketing Director</p>
+            </div>
+            <div class="entry">
               <div class="entry-head"><strong>CASEKOO</strong><span class="when">Jun – Aug 2024</span></div>
               <p>Marketing Content Creator</p>
+            </div>
+            <div class="entry">
+              <div class="entry-head"><strong>She’s The First Taylor’s Lakeside Campus</strong><span class="when">May – Dec 2024</span></div>
+              <p>PR Director</p>
             </div>
           </div>
         </section>
@@ -287,7 +310,6 @@
 
       </div>
 
-      <p class="fun-fact" data-reveal>fun fact: i took the background video at the osaka aquarium!</p>
     </main>
   </div>
 

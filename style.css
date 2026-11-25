@@ -6,7 +6,7 @@
 * { box-sizing: border-box; margin: 0; padding: 0; }
 
 body {
-  background: var(--blue);
+  background: var(--bg-base, var(--blue));
   color: #fff;
   font-family: "acumin-variable", "Acumin Variable Concept", system-ui, sans-serif;
   -webkit-font-smoothing: antialiased;
@@ -21,7 +21,7 @@ body {
   inset: 0;
   z-index: -1;
   overflow: hidden;
-  background: var(--blue); /* shows if the video can't play */
+  background: var(--bg-base, var(--blue)); /* shows if the video can't play */
 }
 
 .bg video,
@@ -127,9 +127,25 @@ html.has-cursor textarea { cursor: text !important; }
 .bg-tint {
   position: absolute;
   inset: 0;
-  background: var(--blue);
-  opacity: 0.68;
+  background: var(--tint, var(--blue));
+  opacity: var(--tint-opacity, 0.68);
+  transition: background-color 700ms var(--ease-out), opacity 700ms var(--ease-out);
 }
+
+/* ---------- colourways: each background video gets its own tint ----------
+   (set on <html data-colourway>; the video itself is swapped in script.js) */
+:root[data-colourway="dark"] {
+  --tint: #050b12;          /* near-black navy */
+  --tint-opacity: 0.5;
+  --bg-base: #070d14;       /* behind the video while it loads */
+  --hl-band: rgba(52, 122, 174, 0.62);   /* bio highlights: site blue glows on near-black */
+}
+
+/* cross-fade when switching: the footage dips out, the tint stays, the new clip fades in */
+.bg video,
+.bg canvas { transition: opacity 450ms var(--ease-out); }
+.bg.swapping video,
+.bg.swapping canvas { opacity: 0; }
 
 /* film grain: static noise that shimmers at a low frame rate */
 .bg-grain {
@@ -369,6 +385,38 @@ html.has-cursor textarea { cursor: text !important; }
   padding: 0.3rem 0.1rem; /* a slightly bigger target for the cursor */
 }
 
+/* background colourway swatches, at the end of the nav */
+.cw-picker {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  margin-left: 0.4rem;
+  padding-left: 1.4rem;
+  border-left: 1.5px solid currentColor;   /* a quiet divider from the links */
+  border-left-color: color-mix(in srgb, currentColor 35%, transparent);
+}
+.cw {
+  position: relative;
+  width: 16px;
+  height: 16px;
+  padding: 0;
+  border: 1.5px solid currentColor;
+  border-radius: 50%;
+  transition: transform 250ms var(--ease-out);
+}
+.cw::before {                  /* a bigger invisible hit area */
+  content: "";
+  position: absolute;
+  inset: -8px;
+}
+.cw--aquarium { background: #347aae; }
+.cw--dark { background: #0b141d; }
+.cw[aria-pressed="true"] { outline: 1.5px solid currentColor; outline-offset: 3px; }   /* the one in use */
+@media (hover: hover) and (pointer: fine) {
+  .cw:hover { transform: scale(1.18); }
+}
+.cw:focus-visible { outline: 2px solid currentColor; outline-offset: 4px; }
+
 /* ---------- about page ---------- */
 .about {
   width: min(1100px, 86vw);
@@ -479,14 +527,6 @@ html.has-cursor textarea { cursor: text !important; }
   font-variant-numeric: tabular-nums;
 }
 
-.fun-fact {
-  grid-column: 1 / -1;
-  margin-top: 10vh;
-  text-align: center;
-  font-size: 0.9rem;
-  font-weight: 500;
-}
-.fun-fact.in { opacity: 0.7; }   /* fades up like the rest, but stays soft */
 
 /* contact form */
 .contact-form { display: grid; gap: 1.1rem; max-width: 560px; }
@@ -654,7 +694,7 @@ html.lenis.lenis-stopped { overflow: auto; }
   padding: 0 0.12em;
   margin: 0 -0.04em;
   background-color: transparent;
-  background-image: linear-gradient(rgba(8, 40, 72, 0.5), rgba(8, 40, 72, 0.5));
+  background-image: linear-gradient(var(--hl-band, rgba(8, 40, 72, 0.5)), var(--hl-band, rgba(8, 40, 72, 0.5)));
   background-repeat: no-repeat;
   background-position: 0 50%;   /* covers the whole height of the letters */
   background-size: 0% 100%;

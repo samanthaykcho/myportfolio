@@ -150,6 +150,41 @@ bgVideo.defaultMuted = true;
 // Play at half speed.
 bgVideo.playbackRate = 0.5;
 bgVideo.addEventListener("loadedmetadata", () => { bgVideo.playbackRate = 0.5; });
+
+// ---------- Colourways: pick the background video ----------
+// The swatches in the nav swap the clip; each colourway's tint lives in
+// style.css (:root[data-colourway=…]). The choice is remembered in this
+// browser, and a tiny script in <head> applies it before the page paints.
+const COLOURWAYS = {
+  aquarium: "assets/aquarium.mp4",
+  dark: "assets/dark.mp4",
+};
+const bgEl = document.querySelector(".bg");
+const cwButtons = [...document.querySelectorAll(".cw")];
+
+function setColourway(name, animate) {
+  if (!COLOURWAYS[name]) name = "aquarium";
+  document.documentElement.dataset.colourway = name;
+  cwButtons.forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.cw === name)));
+  try { localStorage.setItem("colourway", name); } catch (e) { /* private mode: just don't remember */ }
+
+  const src = COLOURWAYS[name];
+  if (bgVideo.getAttribute("src") === src) return;
+  if (!animate) { bgVideo.src = src; return; }
+
+  // dip the footage out (the tint stays), swap the clip, fade the new one in
+  bgEl.classList.add("swapping");
+  setTimeout(() => {
+    bgVideo.src = src;
+    bgVideo.play().catch(() => {});
+    const reveal = () => bgEl.classList.remove("swapping");
+    bgVideo.addEventListener("playing", reveal, { once: true });
+    setTimeout(reveal, 2500);                    // never stay hidden if "playing" is slow
+  }, 450);
+}
+cwButtons.forEach((b) => b.addEventListener("click", () => setColourway(b.dataset.cw, true)));
+setColourway(document.documentElement.dataset.colourway, false);
+
 bgVideo.play().catch(() => { /* autoplay blocked: the blue background stays */ });
 
 // Blur is gentle in the middle of the clip and ramps up at the very start and
