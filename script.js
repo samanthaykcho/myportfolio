@@ -712,7 +712,7 @@ function route(hash, fromHistory, animate = true) {
 }
 
 // nav links, the ray icon, project cards: change the URL and slide, without reloading
-document.querySelectorAll('.nav a, .foot-nav a, a.home, a.back, a.project:not([href="#"])').forEach((a) => {
+document.querySelectorAll('.nav a, .foot-nav a, a.home, a.back, a.case-link, a.project:not([href="#"])').forEach((a) => {
   a.addEventListener("click", (e) => {
     e.preventDefault();
     if (busy) return;

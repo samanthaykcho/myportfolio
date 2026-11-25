@@ -1598,3 +1598,65 @@ figure.split-img img { filter: drop-shadow(0 14px 18px rgba(0, 0, 0, 0.14)); }  
   }
   .case-index-list button { font-size: 1rem; padding: 0.45rem 0; }
 }
+
+/* ---------- isogu "final": the finished product, full-screen like the hero ---------- */
+.case-final .case-heading { margin-bottom: 6vh; }
+.final-shot {
+  margin: 0;
+  width: 100vw;
+  margin-left: calc(50% - 50vw);   /* break out of the section to the screen edges */
+  height: 100vh;
+  min-height: 520px;
+  overflow: hidden;
+}
+.final-shot img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: 50% 45%;
+}
+/* the end bar sits right under the photo, so the sheet needs no extra bottom padding */
+.case-sheet:has(.case-end) { padding-bottom: 0; }
+
+/* end of a project page: back to the grid (left), next project (right) */
+.case-end {
+  width: min(1100px, 86vw);
+  margin: 0 auto;
+  padding: 4.5rem 0 5.5rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  gap: 2rem;
+}
+.case-link {
+  color: inherit;
+  text-decoration: none;
+  font-size: clamp(1rem, 1.2vw, 1.1rem);
+  font-weight: 600;
+  transition: transform 300ms var(--ease-out), color 200ms var(--ease-out);
+}
+.case-link--next { text-align: right; }
+.case-link-label {
+  display: block;
+  font-size: 0.9rem;
+  font-weight: 500;
+  opacity: 0.7;
+  margin-bottom: 0.3rem;
+}
+.case-link-name {
+  display: block;
+  font-size: clamp(2rem, 4.4vw, 4rem);
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: -0.02em;
+}
+@media (hover: hover) and (pointer: fine) {
+  .case-link:hover { color: var(--blue); }
+  .case-link:first-child:hover { transform: translateX(-4px); }
+  .case-link--next:hover { transform: translateX(4px); }
+  .back--fwd:hover { transform: translateX(4px); }
+}
+.case-link:focus-visible { outline: 2px solid var(--blue); outline-offset: 4px; }
+.back--fwd { margin-top: 1.2rem; }
+.back--fwd + .back { margin-top: 0.4rem; }
