@@ -22,6 +22,37 @@ function introTagline() {
   });
 }
 
+// ---------- Section index on project pages (markup) ----------
+// Built from each project page's section headings, so new sections show up on
+// their own. Built here, before Variable Proximity below splits text into
+// letters, so the index names get the same cursor-weight effect.
+// Behaviour (show/hide, current section, jumping) is in the "Section index" part
+// near the end.
+const caseIndexes = [...document.querySelectorAll(".view--project")].map((view) => {
+  const sections = [...view.querySelectorAll(".case-section")];
+  if (!sections.length) return null;
+  const nav = document.createElement("nav");
+  nav.className = "case-index";
+  nav.setAttribute("aria-label", "sections");
+  nav.innerHTML = `<button class="case-index-toggle" type="button" aria-expanded="false">sections</button><ol class="case-index-list"></ol>`;
+  const list = nav.querySelector("ol");
+  const items = sections.map((sec) => {
+    const name = sec.querySelector(".case-heading").textContent.trim();
+    sec.id = `${view.id.replace(/-view$/, "")}-${name.replace(/\W+/g, "-")}`;
+    const li = document.createElement("li");
+    const btn = document.createElement("button");
+    btn.type = "button";
+    btn.className = "vp";
+    Object.assign(btn.dataset, { from: "500", to: "800", radius: "70", pull: "0.08" });
+    btn.textContent = name;
+    li.appendChild(btn);
+    list.appendChild(li);
+    return { sec, btn };
+  });
+  view.appendChild(nav);
+  return { view, nav, items, sheet: view.querySelector(".case-sheet"), active: null };
+}).filter(Boolean);
+
 // ---------- Variable Proximity ----------
 // Plain-JS version of the React Bits "Variable Proximity" effect:
 // each letter gets heavier the closer the cursor is to it.
@@ -431,7 +462,7 @@ requestAnimationFrame(updateVideoBlur);
 
     const t = e.target instanceof Element ? e.target : null;
     const inText = !!t?.closest(TEXT);
-    const onSheet = !!t?.closest(".contents, .case-sheet, .matrix"); // the white sheets (not the hero photos: Sam wants white there)
+    const onSheet = !!t?.closest(".contents, .case-sheet, .matrix, .case-index"); // the white sheets (not the hero photos: Sam wants white there)
     cursor.classList.toggle("hover", !!t?.closest(CLICKABLE));
     cursor.classList.toggle("text", inText);
     cursor.classList.toggle("light", onSheet);
@@ -586,7 +617,7 @@ function homeTarget(hash) {
   if (hash === "#work") return contentsSheet.getBoundingClientRect().top + window.scrollY;
   return 0;
 }
-function refresh() { updateNav(); updateParallax(); }
+function refresh() { updateNav(); updateParallax(); updateCaseIndex(); }
 
 async function showPage(view, animate) {
   const from = current;
@@ -829,3 +860,54 @@ document.addEventListener("keydown", (e) => {
   if (e.key === "Tab") { e.preventDefault(); lightboxClose.focus(); } // keep focus inside
 });
 window.addEventListener("popstate", closeLightbox);
+
+/* ---------- Section index (behaviour) ----------
+   Fades in once the white sheet reaches mid-screen (hidden over the hero),
+   marks the section you're reading (blue + heavier), and glides to a section
+   when you click its name. On narrower screens it's a "sections" pill at the
+   bottom that opens the same list. */
+function setIndexCurrent(btn, on) {
+  btn.classList.toggle("is-current", on);
+  if (on) btn.setAttribute("aria-current", "location");
+  else btn.removeAttribute("aria-current");
+  const g = groups.find((g) => g.el === btn);
+  if (g) g.from = on ? 800 : 500;
+}
+function setIndexOpen(ix, open) {
+  ix.nav.classList.toggle("open", open);
+  ix.nav.querySelector(".case-index-toggle").setAttribute("aria-expanded", String(open));
+}
+function updateCaseIndex() {
+  const vh = window.innerHeight;
+  for (const ix of caseIndexes) {
+    if (ix.view !== current) { ix.nav.classList.remove("shown"); continue; }
+    const shown = ix.sheet.getBoundingClientRect().top < vh * 0.5;
+    ix.nav.classList.toggle("shown", shown);
+    if (!shown) setIndexOpen(ix, false);
+    let active = null;
+    for (const it of ix.items) if (it.sec.getBoundingClientRect().top < vh * 0.4) active = it;
+    if (active !== ix.active) {
+      ix.items.forEach((it) => setIndexCurrent(it.btn, it === active));
+      ix.active = active;
+    }
+  }
+}
+lenis.on("scroll", updateCaseIndex);
+window.addEventListener("resize", updateCaseIndex);
+
+for (const ix of caseIndexes) {
+  ix.nav.querySelector(".case-index-toggle").addEventListener("click", () => {
+    setIndexOpen(ix, !ix.nav.classList.contains("open"));
+  });
+  ix.items.forEach(({ sec, btn }) => btn.addEventListener("click", () => {
+    setIndexOpen(ix, false);
+    lenis.scrollTo(sec, { offset: -window.innerHeight * 0.1, duration: 1.1 });
+  }));
+}
+// the pill's list closes on a click elsewhere or Esc
+document.addEventListener("click", (e) => {
+  for (const ix of caseIndexes) if (!ix.nav.contains(e.target)) setIndexOpen(ix, false);
+});
+document.addEventListener("keydown", (e) => {
+  if (e.key === "Escape") caseIndexes.forEach((ix) => setIndexOpen(ix, false));
+});

@@ -1162,6 +1162,18 @@ html.lenis.lenis-stopped { overflow: auto; }
 .matrix tfoot td.best {
   color: var(--blue);
 }
+/* a written summary under a matrix */
+.matrix-sub {
+  margin: 2.2rem 0 0.6rem;
+  font-size: 1.1rem;
+  font-weight: 700;
+}
+.matrix-text {
+  max-width: 62ch;
+  font-size: 1rem;
+  line-height: 1.55;
+  font-weight: 500;
+}
 
 .lightbox-img {
   display: block;
@@ -1249,6 +1261,40 @@ html.lenis.lenis-stopped { overflow: auto; }
 }
 .link-btn:focus-visible { outline: 2px solid var(--blue); outline-offset: 4px; }
 
+/* ---- prototyping ---- */
+/* the two cardboard prototypes (background cut out), sitting on the sheet */
+.case-protos {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  column-gap: 6vw;
+}
+.proto-img { aspect-ratio: 4 / 3; }
+.proto-img img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  filter: drop-shadow(0 14px 18px rgba(0, 0, 0, 0.14)); /* grounds them on the white */
+}
+
+/* testing photos: 4 across (2 rows), at the photos' own 4:3 shape */
+.case-testing { margin-top: 14vh; }
+.test-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1.2vw;
+}
+.test-grid img {
+  display: block;
+  width: 100%;
+  height: auto;
+  aspect-ratio: 4 / 3;
+  object-fit: cover;
+}
+.test-grid img:nth-child(4n + 2) { transition-delay: 80ms; }
+.test-grid img:nth-child(4n + 3) { transition-delay: 160ms; }
+.test-grid img:nth-child(4n) { transition-delay: 240ms; }
+
 /* evaluation + notes side by side under the concepts */
 .case-eval {
   margin-top: 12vh;
@@ -1284,6 +1330,8 @@ html.lenis.lenis-stopped { overflow: auto; }
   .concept-img { aspect-ratio: auto; max-height: 70vh; }
   .concept-img img { height: auto; max-height: 70vh; }
   .case-eval { grid-template-columns: 1fr; row-gap: 3rem; }
+  .case-protos { grid-template-columns: 1fr; row-gap: 3rem; }
+  .test-grid { grid-template-columns: 1fr 1fr; gap: 0.8rem; }
   .case-compare { grid-template-columns: 1fr; row-gap: 2.8rem; }
   .case-option { transition-delay: 0ms !important; }
   .case-criteria li { grid-template-columns: 2.4rem 1fr; row-gap: 0.4rem; }
@@ -1296,4 +1344,79 @@ html.lenis.lenis-stopped { overflow: auto; }
   .case-pair { grid-template-columns: 1fr; row-gap: 3.5rem; }
   .case-pair .case-fig:nth-child(2) { margin-top: 0; }
   .case-takeaway { margin-left: 0; }
+}
+
+/* ---------- section index (project pages, built by script.js) ----------
+   Wide screens: a slim list in the left margin, beside the white sheet.
+   Narrower: a blue "sections" pill at the bottom that opens the list. */
+.case-index {
+  position: fixed;
+  z-index: 5;
+  left: clamp(1.2rem, 2.6vw, 2.5rem);
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--ink);
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 400ms var(--ease-out), visibility 0s linear 400ms;
+}
+.case-index.shown {
+  opacity: 1;
+  visibility: visible;
+  transition: opacity 400ms var(--ease-out);
+}
+.case-index-toggle { display: none; }
+.case-index-list { list-style: none; display: grid; gap: 0.2rem; }
+.case-index-list button {
+  padding: 0.3rem 0;
+  border: 0;
+  background: none;
+  font: inherit;
+  font-size: 0.95rem;
+  text-align: left;
+  color: rgba(17, 17, 17, 0.7);
+  transition: color 250ms var(--ease-out);
+}
+.case-index-list button:hover { color: var(--ink); }
+.case-index-list button.is-current { color: var(--blue); }
+.case-index-list button:focus-visible,
+.case-index-toggle:focus-visible { outline: 2px solid var(--blue); outline-offset: 3px; }
+
+/* not enough margin beside the sheet: switch to the pill */
+@media (max-width: 1379px) {
+  .case-index {
+    left: 50%;
+    top: auto;
+    bottom: 1.2rem;
+    transform: translateX(-50%);
+    display: flex;
+    flex-direction: column-reverse;
+    align-items: center;
+  }
+  .case-index-toggle {
+    display: block;
+    padding: 0.6rem 1.3rem;
+    border: 0;
+    border-radius: 999px;
+    background: var(--blue);
+    color: #fff;
+    font: inherit;
+    font-size: 0.95rem;
+    font-weight: 700;
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.18);
+  }
+  .case-index-list {
+    display: none;
+    margin-bottom: 0.6rem;
+    padding: 0.8rem 1.4rem;
+    background: #fff;
+    border-radius: 14px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.18);
+    transform-origin: bottom center;
+  }
+  .case-index.open .case-index-list {
+    display: grid;
+    animation: lb-zoom 200ms var(--ease-out);
+  }
+  .case-index-list button { font-size: 1rem; padding: 0.45rem 0; }
 }
