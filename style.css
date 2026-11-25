@@ -1295,6 +1295,175 @@ html.lenis.lenis-stopped { overflow: auto; }
 .test-grid img:nth-child(4n + 3) { transition-delay: 160ms; }
 .test-grid img:nth-child(4n) { transition-delay: 240ms; }
 
+/* ---- development: CAD screenshots, first print, redesigns ---- */
+.cad-row {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 2vw;
+  align-items: start;
+}
+.cad-row .cad-shot:nth-child(2) { transition-delay: 100ms; }
+.cad-row .cad-shot:nth-child(3) { transition-delay: 200ms; }
+/* screenshots get a hairline so their own backgrounds don't melt into the sheet */
+.cad-shot img {
+  aspect-ratio: 16 / 10;
+  object-fit: contain;
+  background: #fff;
+  border: 1px solid rgba(17, 17, 17, 0.12);
+}
+.cad-shot--wide { max-width: 920px; margin: 0 auto; }
+.cad-shot--wide + .cad-shot--wide { margin-top: 3rem; }
+.cad-shot--wide img { aspect-ratio: auto; }
+
+/* image on one side, text on the other (--flip puts the text first) */
+.case-split {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  column-gap: 6vw;
+  align-items: center;
+}
+.case-split p {
+  max-width: 50ch;
+  font-size: clamp(1rem, 1.2vw, 1.1rem);
+  line-height: 1.6;
+  font-weight: 500;
+}
+.split-img { margin: 0; }
+.split-img img { display: block; width: 100%; height: auto; }
+figure.split-img img { filter: drop-shadow(0 14px 18px rgba(0, 0, 0, 0.14)); }  /* the cut-out print */
+
+/* highlights on the white sheet: a light blue band (the bio's dark band is for white text) */
+.case-sheet .hl {
+  background-image: linear-gradient(rgba(52, 122, 174, 0.18), rgba(52, 122, 174, 0.18));
+}
+
+/* ---- final manufacturing: each phase = text beside its numbered process photos ---- */
+.make-phase {
+  display: grid;
+  grid-template-columns: 5fr 7fr;
+  column-gap: 5vw;
+  align-items: start;
+}
+.make-phase--flip { grid-template-columns: 7fr 5fr; }
+.case-block.make-phase + .case-block.make-phase { margin-top: 7vh; }   /* the two phases read as one section */
+.make-phase--flip .make-text { order: 2; }
+.make-text p {
+  max-width: 50ch;
+  font-size: clamp(1rem, 1.2vw, 1.1rem);
+  line-height: 1.6;
+  font-weight: 500;
+}
+.make-steps {
+  list-style: none;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.6rem 1.2vw;
+}
+.make-steps img {
+  display: block;
+  width: 100%;
+  height: auto;
+  aspect-ratio: 1 / 1;
+  object-fit: cover;
+}
+/* phase 2: two steps, then the finished piece across the full width */
+.make-steps--3 img { aspect-ratio: 4 / 3; }
+.make-steps--3 li:last-child { grid-column: 1 / -1; }
+.make-steps li:nth-child(2) { transition-delay: 80ms; }
+.make-steps li:nth-child(3) { transition-delay: 160ms; }
+.make-steps li:nth-child(4) { transition-delay: 240ms; }
+.make-cap {
+  display: block;
+  margin-top: 0.6rem;
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+.make-cap b { color: var(--blue); font-weight: 700; margin-right: 0.3em; }
+
+/* ---- branding: logo evolution, the name + bunny, type + colour, the label ---- */
+.evo-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4vw;
+}
+.evo-item { margin: 0; width: min(30%, 320px); text-align: center; }
+.evo-item img {
+  display: block;
+  width: 100%;
+  height: clamp(220px, 28vw, 380px);
+  object-fit: contain;
+}
+.evo-item:nth-child(3) { transition-delay: 200ms; }
+.evo-arrow {
+  font-size: clamp(2rem, 4vw, 3.4rem);
+  font-weight: 600;
+  color: var(--blue);
+}
+.brand-evo figcaption,
+.brand-label figcaption {
+  margin-top: 0.8rem;
+  font-size: 0.9rem;
+  font-weight: 500;
+  opacity: 0.7;
+}
+
+.brand-story {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  column-gap: 6vw;
+}
+.brand-story .case-sub { margin-bottom: 1rem; }
+.brand-story > div:nth-child(2) { transition-delay: 120ms; }
+.brand-story p {
+  max-width: 44ch;
+  font-size: clamp(1.05rem, 1.35vw, 1.25rem);
+  line-height: 1.55;
+  font-weight: 500;
+}
+
+.type-row {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  column-gap: 5vw;
+  align-items: center;
+}
+.type-specimen { margin: 0; }
+.type-specimen img { display: block; width: 100%; height: auto; }
+.swatches { list-style: none; display: grid; gap: 1.4rem; transition-delay: 150ms; }
+.swatches li {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  column-gap: 1.1rem;
+  align-items: center;
+}
+.chip {
+  grid-row: span 2;
+  width: clamp(56px, 5vw, 76px);
+  aspect-ratio: 1;
+  border-radius: 14px;
+}
+.chip--light { box-shadow: inset 0 0 0 1.5px rgba(17, 17, 17, 0.12); }  /* cream needs an edge on white */
+.sw-name { font-size: 1.05rem; font-weight: 700; align-self: end; }
+.sw-hex {
+  font-size: 0.95rem;
+  font-weight: 500;
+  opacity: 0.7;
+  font-variant-numeric: tabular-nums;
+  align-self: start;
+}
+
+.label-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  column-gap: 5vw;
+  align-items: center;
+}
+.label-row figure { margin: 0; }
+.label-row img { display: block; width: 100%; height: auto; }
+.label-row figure:nth-child(2) { transition-delay: 120ms; }
+.brand-board-link { margin-top: 3.5rem; }
+
 /* evaluation + notes side by side under the concepts */
 .case-eval {
   margin-top: 12vh;
@@ -1331,6 +1500,15 @@ html.lenis.lenis-stopped { overflow: auto; }
   .concept-img img { height: auto; max-height: 70vh; }
   .case-eval { grid-template-columns: 1fr; row-gap: 3rem; }
   .case-protos { grid-template-columns: 1fr; row-gap: 3rem; }
+  .cad-row { grid-template-columns: 1fr; row-gap: 1.2rem; }
+  .cad-shot { transition-delay: 0ms !important; }
+  .case-split { grid-template-columns: 1fr; row-gap: 2.4rem; }
+  .make-phase, .make-phase--flip { grid-template-columns: 1fr; row-gap: 2rem; }
+  .evo-item { width: 40%; }
+  .brand-story, .type-row, .label-row { grid-template-columns: 1fr; row-gap: 2.4rem; }
+  .swatches { grid-template-columns: 1fr 1fr; }
+  .make-phase--flip .make-text { order: 0; }
+  .make-steps li { transition-delay: 0ms !important; }
   .test-grid { grid-template-columns: 1fr 1fr; gap: 0.8rem; }
   .case-compare { grid-template-columns: 1fr; row-gap: 2.8rem; }
   .case-option { transition-delay: 0ms !important; }

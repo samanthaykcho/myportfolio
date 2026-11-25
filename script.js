@@ -843,6 +843,16 @@ document.querySelectorAll("[data-zoom]").forEach((btn) => {
     openLightbox(img, btn);
   });
 });
+// a text link that opens an image (e.g. "view full brand board"): data-zoom-src + data-zoom-alt
+document.querySelectorAll("[data-zoom-src]").forEach((btn) => {
+  btn.addEventListener("click", () => {
+    const img = document.createElement("img");
+    img.className = "lightbox-img";
+    img.src = btn.dataset.zoomSrc;
+    img.alt = btn.dataset.zoomAlt || "";
+    openLightbox(img, btn);
+  });
+});
 document.querySelectorAll("[data-zoom-panel]").forEach((btn) => {
   btn.addEventListener("click", () => {
     const tpl = document.getElementById(btn.dataset.zoomPanel);
