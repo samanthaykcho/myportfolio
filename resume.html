@@ -74,8 +74,8 @@
     section + section { margin-top: 10.5pt; }
 
     /* left column */
-    aside .group + .group { margin-top: 7pt; }
-    aside .sub { font-size: 7.8pt; color: var(--soft); margin-bottom: 1pt; }
+    aside .group + .group { margin-top: 6pt; }
+    aside .sub { font-size: 8.4pt; color: var(--ink); font-variation-settings: "wght" 700, "wdth" 100; font-weight: 700; margin-bottom: 1.5pt; }
     aside ul { list-style: none; }
     aside li { line-height: 1.45; }
     .muted { color: var(--soft); }
@@ -84,13 +84,15 @@
     .entry + .entry { margin-top: 5.8pt; }
     .head { display: flex; justify-content: space-between; gap: 10pt; align-items: baseline; }
     .org { font-variation-settings: "wght" 700, "wdth" 100; font-weight: 700; font-size: 9.8pt; }
-    .org a { color: inherit; text-decoration: none; }
+    /* linked names: same colour as the text, plus a small blue ↗ so they read as clickable */
+    a.org, a.name, li a.ext { color: inherit; text-decoration: none; }
+    .ext::after { content: " ↗"; color: var(--blue); font-size: 0.8em; font-variation-settings: "wght" 500, "wdth" 100; }
     .when { font-size: 8.4pt; color: var(--soft); white-space: nowrap; }
     .role { font-style: italic; }
     .entry ul { margin-top: 2pt; padding-left: 10pt; }
     .entry li { margin-top: 1.2pt; }
     .entry li::marker { color: var(--blue); }
-    .proj .name { font-variation-settings: "wght" 700, "wdth" 100; font-weight: 700; font-size: 9.8pt; }
+    .proj .name { flex: none; white-space: nowrap; font-variation-settings: "wght" 700, "wdth" 100; font-weight: 700; font-size: 9.8pt; }
     .proj { display: flex; align-items: baseline; gap: 6pt; }
     .proj + .proj { margin-top: 3pt; }
     .proj .kind { font-size: 7.4pt; color: var(--blue); border: 1px solid var(--blue); border-radius: 99px; padding: 0 5pt; }
@@ -182,12 +184,12 @@
       <section>
         <h2>Experience</h2>
         <div class="entry">
-          <div class="head"><span class="org">World Studios</span><span class="when">Aug 2026 – Present</span></div>
+          <div class="head"><a class="org ext" href="https://www.instagram.com/p/Der8jLEmwOH/?img_index=5">World Studios</a><span class="when">Aug 2026 – Present</span></div>
           <p class="role">Product Designer</p>
           <ul><li>Synthesizing insights from user interviews</li></ul>
         </div>
         <div class="entry">
-          <div class="head"><span class="org">Malaysian Students Association @ UIUC</span><span class="when">Aug 2026 – Present</span></div>
+          <div class="head"><a class="org ext" href="https://www.instagram.com/masauiuc/">Malaysian Students Association @ UIUC</a><span class="when">Aug 2026 – Present</span></div>
           <p class="role">Social Media Director</p>
           <ul>
             <li>Grew views by 288.3% across all content since August</li>
@@ -196,7 +198,7 @@
           </ul>
         </div>
         <div class="entry">
-          <div class="head"><span class="org">MHub Malaysia</span><span class="when">Dec 2025 – Jan 2026</span></div>
+          <div class="head"><a class="org ext" href="https://www.instagram.com/mhub.my/">MHub Malaysia</a><span class="when">Dec 2025 – Jan 2026</span></div>
           <p class="role">Digital Marketing Intern</p>
           <ul>
             <li>Learned about consumer behavior and engagement on social media for the property sales ecosystem</li>
@@ -212,15 +214,15 @@
           </ul>
         </div>
         <div class="entry">
-          <div class="head"><span class="org">CASEKOO</span><span class="when">Jun – Aug 2024</span></div>
+          <div class="head"><a class="org ext" href="https://casekoo.com/">CASEKOO</a><span class="when">Jun – Aug 2024</span></div>
           <p class="role">Marketing Content Creator</p>
           <ul><li>Analyzed how the Chinese company could begin promoting in Malaysia</li></ul>
         </div>
         <div class="entry">
-          <div class="head"><span class="org">She’s The First Taylor’s Lakeside Campus</span><span class="when">May – Dec 2024</span></div>
+          <div class="head"><a class="org ext" href="https://college.taylors.edu.my/en/student-life/your-taylors-journey/clubs-societies-and-sports/community-centric/she-is-the-first.html">She’s The First Taylor’s Lakeside Campus</a><span class="when">May – Dec 2024</span></div>
           <p class="role">PR Director</p>
           <ul>
-            <li>Raised RM833 for breast cancer awareness in Malaysia</li>
+            <li><a class="ext" href="https://www.instagram.com/p/DB7uxdtS3fQ/?img_index=1">Raised RM833 for breast cancer awareness in Malaysia</a></li>
             <li>Organized the club’s booth at the student organization fair, bringing in 53 new membership applicants in one day</li>
             <li>Designed graphics for promotional material</li>
           </ul>
@@ -243,9 +245,9 @@
 
       <section>
         <h2>Projects</h2>
-        <p class="proj"><span class="name">isogu</span><span class="kind">solo</span><span class="muted">Physical prototyping, Fusion360 CAD, 3D printing, brand design, CMF design</span></p>
-        <p class="proj"><span class="name">kove</span><span class="kind">group</span><span class="muted">Design thinking, rapid prototyping, woodworking</span></p>
-        <p class="proj"><span class="name">nimi</span><span class="kind">solo</span><span class="muted">Rapid ideation and iteration, concept development, sketching, rendering</span></p>
+        <p class="proj"><a class="name ext" href="https://samanthaykcho.github.io/myportfolio/#isogu">isogu</a><span class="kind">solo</span><span class="muted">Physical prototyping, Fusion360 CAD, 3D printing, brand design, CMF design</span></p>
+        <p class="proj"><a class="name ext" href="https://samanthaykcho.github.io/myportfolio/#kove">kove</a><span class="kind">group</span><span class="muted">Design thinking, rapid prototyping, woodworking</span></p>
+        <p class="proj"><a class="name ext" href="https://samanthaykcho.github.io/myportfolio/#nimi">nimi</a><span class="kind">solo</span><span class="muted">Rapid ideation and iteration, concept development, sketching, rendering</span></p>
       </section>
     </main>
     </div>
