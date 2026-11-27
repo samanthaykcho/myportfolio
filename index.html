@@ -990,7 +990,11 @@
     <main class="case">
       <!-- full-screen render; the name sits in the empty blue sky top-left -->
       <header class="case-hero case-hero--sky">
-        <img class="case-hero-img" src="assets/nimi-hero.webp" alt="Rendering of nimi, a pale cloud-shaped camera for kids with a sun-shaped yellow lens and a yellow lanyard and wrist strap, on a blue background" width="2400" height="1553" decoding="async">
+        <!-- phones get a version with extra sky painted above the cloud, so the whole camera + strap fit and the name has room -->
+        <picture>
+          <source media="(max-width: 720px)" srcset="assets/nimi-hero-phone.webp" width="1600" height="1355">
+          <img class="case-hero-img" src="assets/nimi-hero.webp" alt="Rendering of nimi, a pale cloud-shaped camera for kids with a sun-shaped yellow lens and a yellow lanyard and wrist strap, on a blue background" width="2400" height="1553" decoding="async">
+        </picture>
         <h1 class="case-logo nimi-title vp" data-from="700" data-to="900" data-radius="180" data-pull="0.05">nimi</h1>
       </header>
 

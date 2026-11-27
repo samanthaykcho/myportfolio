@@ -2350,9 +2350,12 @@ figure.split-img img { filter: drop-shadow(0 14px 18px rgba(0, 0, 0, 0.14)); }  
   .foot { margin-top: 14vh; }
 
   /* nimi: a shorter hero so the whole cloud shows, name clear of the lanyard */
-  .case-hero--sky { --hh: 60vh; height: var(--hh); }
-  .case-hero--sky .case-hero-img { left: 0; transform: translateX(-25%); }   /* frames the cloud a bit right of centre: clear sky for the name, the strap still peeks in */
-  .nimi-title { top: 9vh; left: 6vw; font-size: clamp(3.2rem, 17vw, 4.4rem); }
+  /* phones load nimi-hero-phone.webp (the render with sky painted above it: its blue
+     part is 72.86% of its width). Shown 147vw wide, so the window covers ~18–86% of
+     the picture: lens on the left, the whole strap on the right, like desktop. */
+  .case-hero--sky { height: calc(147vw * 0.7286); }
+  .case-hero--sky .case-hero-img { left: 50%; top: 0; width: 147vw; transform: translateX(-52%); }
+  .nimi-title { top: 4.6rem; left: 6vw; font-size: clamp(2.6rem, 13.5vw, 3.6rem); }
   .name-eq { gap: 1rem; }
   .name-big { font-size: clamp(2.4rem, 12vw, 3.2rem); }
   .name-role { white-space: nowrap; font-size: 0.78rem; padding: 0.25rem 0.7rem; }

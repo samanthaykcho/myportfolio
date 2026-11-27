@@ -63,6 +63,6 @@ Highlighted phrases (`mark.hl`) show a polaroid (`.pop` with `img` + `.cap`) on 
 - Possibly revisit the "tide line" wave edge on the contents sheet (CSS is there, switched off).
 
 ## Phone (≤720px)
-- Sam found phone "a lot jankier" than desktop (2026-11-27). A "Phone polish" block at the end of style.css roughly halves the vh spacing on project pages, tucks the "sections" pill small into the bottom-right corner, and gives nimi a 60vh hero (`--hh` drives the sky-hero image maths) framed with `translateX(-25%)` so the name sits in clear sky.
+- Sam found phone "a lot jankier" than desktop (2026-11-27). A "Phone polish" block at the end of style.css roughly halves the vh spacing on project pages, tucks the "sections" pill small into the bottom-right corner, and gives nimi its own phone hero: `nimi-hero-phone.webp` (via `<picture>`; the render with 1020px of sky painted above it, the faded lanyard end blended into the sky) shown 147vw wide so the lens, whole strap overhang and the name all fit, like desktop. The first 60vh-crop attempt overlapped the cloud and cut the strap on Sam's phone.
 - On phones the top nav + ray slide away while scrolling down and return on scroll up (`updateNavAway` in script.js, `.away` class). Desktop nav behaviour is unchanged.
 - Check phone layouts by loading `file:///…/index.html#<page>` in headless Edge with a 390×844 mobile viewport (works for layout; only the WebGL ripples need http).
