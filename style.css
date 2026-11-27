@@ -513,6 +513,38 @@ html.has-cursor textarea { cursor: text !important; }
 }
 
 .entry + .entry { margin-top: 1.5rem; }
+/* what each role involved: small bullet points under the title */
+.cv-body .points {
+  margin: 0.45rem 0 0;
+  padding-left: 1.1rem;
+  font-size: clamp(0.92rem, 1.05vw, 1rem);
+  line-height: 1.5;
+  font-weight: 450;
+  opacity: 0.8;
+}
+.cv-body .points li + li { margin-top: 0.25rem; }
+.cv-body .points li::marker { color: rgba(255, 255, 255, 0.6); }   /* the about page is white text on the video */
+/* organisation names that link out (their Instagram): a quiet underline + ↗ */
+.org-link {
+  color: inherit;
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.22em;
+  text-decoration-color: rgba(255, 255, 255, 0.45);
+  transition: text-decoration-color 200ms, opacity 200ms;
+}
+.org-link .arrow {
+  display: inline-block;
+  margin-left: 0.25em;
+  font-weight: 500;
+  font-size: 0.85em;
+  transition: transform 250ms var(--ease-out);
+}
+@media (hover: hover) and (pointer: fine) {
+  .org-link:hover { text-decoration-color: currentColor; }
+  .org-link:hover .arrow { transform: translate(2px, -2px); }
+}
+.org-link:focus-visible { outline: 2px solid #fff; outline-offset: 3px; border-radius: 2px; }
 .entry-head {
   display: flex;
   justify-content: space-between;
