@@ -901,6 +901,19 @@ html.lenis.lenis-stopped { overflow: auto; }
 .case-desc p + p { margin-top: 0.8rem; }
 /* a logo standing in for the product's name inside a sentence: text height, sat on the baseline */
 .inline-logo { display: inline-block; height: 1.05em; width: auto; vertical-align: -0.1em; margin-right: 0.1em; }
+
+/* "what's next" note at the end of an unfinished project (nimi): a soft blue card */
+.next-note {
+  width: fit-content;
+  max-width: min(760px, 86vw);
+  margin: 12vh 0 0 calc((100% - min(1100px, 86vw)) / 2);   /* lines up with the page column */
+  padding: 1.4rem 1.7rem;
+  border-radius: 16px;
+  background: rgba(52, 122, 174, 0.08);
+  border: 1.5px solid rgba(52, 122, 174, 0.25);
+}
+.next-note p { max-width: 62ch; font-size: clamp(1rem, 1.2vw, 1.12rem); line-height: 1.55; font-weight: 500; }
+.next-label { margin-bottom: 0.35rem; color: var(--blue); font-weight: 700 !important; font-size: 0.95rem !important; }
 .case-group {
   margin-top: 0.6rem;
   max-width: 48ch;
@@ -2382,6 +2395,7 @@ figure.split-img img { filter: drop-shadow(0 14px 18px rgba(0, 0, 0, 0.14)); }  
   .callouts + .callouts, .callouts + .motif { margin-top: 7vh; }
   .final-shot { height: 72vh; min-height: 0; }
   .final-shot--whole { height: auto; }
+  .next-note { width: auto; max-width: none; margin: 6vh 6vw 0; padding: 1.1rem 1.2rem; }
 
   /* "sections" pill: small, tucked in the bottom-right corner so it doesn't sit on the text */
   .case-index { left: auto; right: 0.9rem; bottom: 0.9rem; transform: none; align-items: flex-end; }
