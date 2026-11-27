@@ -890,6 +890,17 @@ html.lenis.lenis-stopped { overflow: auto; }
   font-weight: 500;
   line-height: 1.5;
 }
+/* a project's main description, under its skills line */
+.case-desc {
+  margin-top: 1rem;
+  max-width: 54ch;
+  font-size: clamp(1.02rem, 1.3vw, 1.2rem);
+  line-height: 1.55;
+  font-weight: 450;
+}
+.case-desc p + p { margin-top: 0.8rem; }
+/* a logo standing in for the product's name inside a sentence: text height, sat on the baseline */
+.inline-logo { display: inline-block; height: 1.05em; width: auto; vertical-align: -0.1em; margin-right: 0.1em; }
 .case-group {
   margin-top: 0.6rem;
   max-width: 48ch;
@@ -2175,14 +2186,26 @@ figure.split-img img { filter: drop-shadow(0 14px 18px rgba(0, 0, 0, 0.14)); }  
 /* Sam's white nimi logo, nestled in the dip where the cloud's top bump meets its
    right bump. Placed in the render's own coordinates (W = the image's on-screen
    width, same maths as .case-hero-img) so it stays in the dip at any window size:
-   left edge at 60% of the image, top at 24% of its height, 20% of its width wide. */
+   left edge at 60% of the image, top at 21% of its height, 20% of its width wide. */
 .case-hero--sky { --W: max(100vw, calc(var(--hh) * 1.8917)); }
 .nimi-logo {
   left: calc(50% + 0.1 * var(--W));
   right: auto;
-  top: calc(var(--hh) - 0.37334 * var(--W));
+  top: calc(var(--hh) - 0.39275 * var(--W));   /* 21% down the render: room for the tagline above the cloud's right bump */
   width: calc(0.2 * var(--W));
   margin: 0;
+}
+/* tagline under the logo, centred like isogu's; sized with the logo */
+.nimi-tagline {
+  display: block;
+  white-space: nowrap;
+  margin-top: 0.7em;
+  text-align: center;
+  color: #fff;
+  font-size: calc(0.0115 * var(--W));
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  line-height: 1.2;
 }
 
 /* ---- one big zoomable board (nimi mood board, sketch sheet) ---- */
@@ -2374,7 +2397,8 @@ figure.split-img img { filter: drop-shadow(0 14px 18px rgba(0, 0, 0, 0.14)); }  
      the picture: lens on the left, the whole strap on the right, like desktop. */
   .case-hero--sky { height: calc(147vw * 0.7286); }
   .case-hero--sky .case-hero-img { left: 50%; top: 0; width: 147vw; transform: translateX(-52%); }
-  .nimi-logo { left: 61.8vw; top: 52.2vw; width: 29.4vw; }   /* same dip, in the phone render's coordinates */
+  .nimi-logo { left: 61.8vw; top: 47.5vw; width: 29.4vw; }   /* same dip, in the phone render's coordinates */
+  .nimi-tagline { font-size: 2.45vw; }
   .name-eq { gap: 1rem; }
   .name-big { font-size: clamp(2.4rem, 12vw, 3.2rem); }
   .name-role { white-space: nowrap; font-size: 0.78rem; padding: 0.25rem 0.7rem; }
