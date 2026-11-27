@@ -2172,18 +2172,17 @@ figure.split-img img { filter: drop-shadow(0 14px 18px rgba(0, 0, 0, 0.14)); }  
   object-fit: fill;
   pointer-events: none;
 }
-.nimi-title {
-  left: 6vw;
+/* Sam's white nimi logo, nestled in the dip where the cloud's top bump meets its
+   right bump. Placed in the render's own coordinates (W = the image's on-screen
+   width, same maths as .case-hero-img) so it stays in the dip at any window size:
+   left edge at 60% of the image, top at 24% of its height, 20% of its width wide. */
+.case-hero--sky { --W: max(100vw, calc(var(--hh) * 1.8917)); }
+.nimi-logo {
+  left: calc(50% + 0.1 * var(--W));
   right: auto;
-  top: max(14vh, 6rem);
-  width: auto;
+  top: calc(var(--hh) - 0.37334 * var(--W));
+  width: calc(0.2 * var(--W));
   margin: 0;
-  color: #fff;
-  font-size: clamp(4rem, 10vw, 10rem);
-  font-weight: 700;
-  line-height: 0.9;
-  letter-spacing: -0.03em;
-  filter: url(#round-head);
 }
 
 /* ---- one big zoomable board (nimi mood board, sketch sheet) ---- */
@@ -2375,7 +2374,7 @@ figure.split-img img { filter: drop-shadow(0 14px 18px rgba(0, 0, 0, 0.14)); }  
      the picture: lens on the left, the whole strap on the right, like desktop. */
   .case-hero--sky { height: calc(147vw * 0.7286); }
   .case-hero--sky .case-hero-img { left: 50%; top: 0; width: 147vw; transform: translateX(-52%); }
-  .nimi-title { top: 4.6rem; left: 6vw; font-size: clamp(2.6rem, 13.5vw, 3.6rem); }
+  .nimi-logo { left: 61.8vw; top: 52.2vw; width: 29.4vw; }   /* same dip, in the phone render's coordinates */
   .name-eq { gap: 1rem; }
   .name-big { font-size: clamp(2.4rem, 12vw, 3.2rem); }
   .name-role { white-space: nowrap; font-size: 0.78rem; padding: 0.25rem 0.7rem; }
