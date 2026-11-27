@@ -661,6 +661,24 @@ function updateNav() {
 lenis.on("scroll", updateNav);
 window.addEventListener("resize", updateNav);
 
+// Phones: the nav and the ray slide away while you scroll down and come back on
+// any scroll up (or near the top), so they never sit on the text you're reading.
+const phoneMQ = window.matchMedia("(max-width: 720px)");
+let lastNavY = window.scrollY;
+function updateNavAway() {
+  const y = window.scrollY;
+  let away = nav.classList.contains("away");
+  if (!phoneMQ.matches || y < 80) away = false;
+  else if (y > lastNavY + 4) away = true;        // small threshold: ignore jitter
+  else if (y < lastNavY - 4) away = false;
+  else return;                                    // barely moved: keep things as they are
+  nav.classList.toggle("away", away);
+  homeIcon.classList.toggle("away", away);
+  lastNavY = y;
+}
+window.addEventListener("scroll", updateNavAway, { passive: true });
+phoneMQ.addEventListener("change", updateNavAway);
+
 // The current section's nav link sits a little heavier at rest:
 // "about" on the about page, "work" on a project page.
 function setCurrent(link, on) {
