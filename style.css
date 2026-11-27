@@ -524,6 +524,26 @@ html.has-cursor textarea { cursor: text !important; }
 }
 .cv-body .points li + li { margin-top: 0.25rem; }
 .cv-body .points li::marker { color: rgba(255, 255, 255, 0.6); }   /* the about page is white text on the video */
+/* "download pdf" button at the top of the résumé: white pill on the video */
+.resume-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 0.6rem 1.2rem;
+  border-radius: 999px;
+  background: #fff;
+  color: var(--blue);
+  font-weight: 700;
+  font-size: 0.95rem;
+  text-decoration: none;
+  transition: transform 250ms var(--ease-out), box-shadow 250ms var(--ease-out);
+}
+.resume-btn span { transition: transform 250ms var(--ease-out); }
+@media (hover: hover) and (pointer: fine) {
+  .resume-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(0, 0, 0, 0.18); }
+  .resume-btn:hover span { transform: translateY(2px); }
+}
+.resume-btn:focus-visible { outline: 2px solid #fff; outline-offset: 3px; }
 /* organisation names that link out (their Instagram): a quiet underline + ↗ */
 .org-link {
   color: inherit;

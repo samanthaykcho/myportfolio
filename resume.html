@@ -1,0 +1,254 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Samantha Cho — Résumé</title>
+  <!-- Source for assets/samantha-cho-resume.pdf (printed with headless Edge, US Letter).
+       Keep it in step with the résumé on the about page in index.html. -->
+  <link rel="stylesheet" href="https://use.typekit.net/tfd3zvu.css">
+  <style>
+    @page { size: letter; margin: 0; }
+    :root {
+      --blue: #347aae;
+      --ink: #161616;
+      --soft: #5b5b5b;
+      --line: #dcdcdc;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html { background: #e9e9e9; }
+    body {
+      font-family: acumin-variable, "Helvetica Neue", Arial, sans-serif;
+      font-variation-settings: "wght" 400, "wdth" 100;
+      color: var(--ink);
+      font-size: 9.1pt;
+      line-height: 1.38;
+      -webkit-print-color-adjust: exact;
+      print-color-adjust: exact;
+    }
+    .page {
+      width: 8.5in;
+      height: 11in;
+      margin: 0 auto;
+      background: #fff;
+      padding: 0.52in 0.6in 0.42in;
+      display: grid;
+      grid-template-columns: 1.85in 1fr;
+      align-items: start;
+      column-gap: 0.42in;
+      overflow: hidden;
+    }
+    @media screen { .page { margin: 24px auto; box-shadow: 0 6px 30px rgba(0,0,0,.12); } }
+
+    /* name + contact at the top of the right column, beside the photo */
+    header {
+      padding-bottom: 0.12in;
+      margin-bottom: 0.15in;
+      border-bottom: 1.5px solid var(--ink);
+    }
+    h1 {
+      font-size: 30pt;
+      line-height: 0.95;
+      letter-spacing: -0.02em;
+      font-variation-settings: "wght" 700, "wdth" 100;
+      font-weight: 700;
+    }
+    .tagline { margin-top: 5pt; font-size: 10.5pt; color: var(--soft); }
+    /* tall portrait at the top of the left column, like a classic CV */
+    .photo { display: block; width: 100%; aspect-ratio: 4 / 5; object-fit: cover; margin-bottom: 0.24in; }
+    .contact { margin-top: 7pt; font-size: 9pt; line-height: 1.55; }
+    .contact .sep { margin: 0 6pt; color: var(--soft); }
+    .contact a { color: var(--ink); text-decoration: none; }
+    /* clickable names instead of full addresses (the links work in the PDF) */
+    .contact .link { color: var(--blue); font-variation-settings: "wght" 600, "wdth" 100; }
+
+    h2 {
+      font-size: 8pt;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      color: var(--blue);
+      font-variation-settings: "wght" 700, "wdth" 100;
+      font-weight: 700;
+      margin-bottom: 6pt;
+    }
+    section + section { margin-top: 10.5pt; }
+
+    /* left column */
+    aside .group + .group { margin-top: 7pt; }
+    aside .sub { font-size: 7.8pt; color: var(--soft); margin-bottom: 1pt; }
+    aside ul { list-style: none; }
+    aside li { line-height: 1.45; }
+    .muted { color: var(--soft); }
+
+    /* right column */
+    .entry + .entry { margin-top: 5.8pt; }
+    .head { display: flex; justify-content: space-between; gap: 10pt; align-items: baseline; }
+    .org { font-variation-settings: "wght" 700, "wdth" 100; font-weight: 700; font-size: 9.8pt; }
+    .org a { color: inherit; text-decoration: none; }
+    .when { font-size: 8.4pt; color: var(--soft); white-space: nowrap; }
+    .role { font-style: italic; }
+    .entry ul { margin-top: 2pt; padding-left: 10pt; }
+    .entry li { margin-top: 1.2pt; }
+    .entry li::marker { color: var(--blue); }
+    .proj .name { font-variation-settings: "wght" 700, "wdth" 100; font-weight: 700; font-size: 9.8pt; }
+    .proj { display: flex; align-items: baseline; gap: 6pt; }
+    .proj + .proj { margin-top: 3pt; }
+    .proj .kind { font-size: 7.4pt; color: var(--blue); border: 1px solid var(--blue); border-radius: 99px; padding: 0 5pt; }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <div class="col-left">
+    <img class="photo" src="assets/headshot.jpg" alt="Samantha Cho">
+    <aside>
+      <section>
+        <h2>Skills</h2>
+        <div class="group">
+          <p class="sub">Design</p>
+          <ul>
+            <li>Human-centered design thinking</li>
+            <li>User &amp; market research</li>
+            <li>Concept development</li>
+            <li>Sketching</li>
+            <li>Storytelling</li>
+            <li>Graphic design</li>
+          </ul>
+        </div>
+        <div class="group">
+          <p class="sub">Making</p>
+          <ul>
+            <li>Prototyping</li>
+            <li>3D modeling</li>
+            <li>3D printing</li>
+            <li>Woodworking</li>
+          </ul>
+        </div>
+        <div class="group">
+          <p class="sub">Software</p>
+          <ul>
+            <li>Fusion 360</li>
+            <li>Rhinoceros 3D</li>
+            <li>AutoCAD</li>
+            <li>Illustrator</li>
+            <li>Photoshop</li>
+            <li>Procreate</li>
+            <li>InDesign</li>
+            <li>Video editing</li>
+          </ul>
+        </div>
+        <div class="group">
+          <p class="sub">Code</p>
+          <ul>
+            <li>Java</li>
+            <li>Python</li>
+            <li>Claude Code</li>
+          </ul>
+        </div>
+      </section>
+
+      <section>
+        <h2>Languages</h2>
+        <ul>
+          <li>English <span class="muted">(native)</span></li>
+          <li>Mandarin Chinese</li>
+          <li>Malay</li>
+          <li>Japanese <span class="muted">(conversational)</span></li>
+        </ul>
+      </section>
+
+      <section>
+        <h2>Interests</h2>
+        <ul>
+          <li>Intuitive designs</li>
+          <li>Matcha</li>
+          <li>My dog (Roxie!)</li>
+          <li>Aquatic animals</li>
+          <li>Baking</li>
+        </ul>
+      </section>
+    </aside>
+    </div>
+
+    <div class="col-right">
+    <header>
+      <h1>Samantha Cho</h1>
+      <p class="tagline">Industrial Design + Data Science · UIUC</p>
+      <p class="contact">
+        <a href="mailto:samanthaykcho@gmail.com">samanthaykcho@gmail.com</a><span class="sep">·</span><a class="link" href="https://samanthaykcho.github.io/myportfolio/">Portfolio ↗</a><span class="sep">·</span><a class="link" href="https://www.linkedin.com/in/samantha-cho-705289353/">LinkedIn ↗</a><span class="sep">·</span><a class="link" href="https://www.instagram.com/samchodesigns/">Instagram ↗</a>
+      </p>
+    </header>
+
+    <main>
+      <section>
+        <h2>Experience</h2>
+        <div class="entry">
+          <div class="head"><span class="org">World Studios</span><span class="when">Aug 2026 – Present</span></div>
+          <p class="role">Product Designer</p>
+          <ul><li>Synthesizing insights from user interviews</li></ul>
+        </div>
+        <div class="entry">
+          <div class="head"><span class="org">Malaysian Students Association @ UIUC</span><span class="when">Aug 2026 – Present</span></div>
+          <p class="role">Social Media Director</p>
+          <ul>
+            <li>Grew views by 288.3% across all content since August</li>
+            <li>Create engaging content and design graphics to promote MaSA’s events</li>
+            <li>Plan events that bring Malaysian students at UIUC together</li>
+          </ul>
+        </div>
+        <div class="entry">
+          <div class="head"><span class="org">MHub Malaysia</span><span class="when">Dec 2025 – Jan 2026</span></div>
+          <p class="role">Digital Marketing Intern</p>
+          <ul>
+            <li>Learned about consumer behavior and engagement on social media for the property sales ecosystem</li>
+            <li>Used short-form content as a means of promotion</li>
+          </ul>
+        </div>
+        <div class="entry">
+          <div class="head"><span class="org">Taylor’s ADP Student Union</span><span class="when">Sep 2024 – May 2025</span></div>
+          <p class="role">Marketing Director</p>
+          <ul>
+            <li>Planned and held the “Getting Into Your Dream School” workshop, guiding students from various Malaysian high schools through the American college application process</li>
+            <li>Designed social media posts to promote ADP events to students</li>
+          </ul>
+        </div>
+        <div class="entry">
+          <div class="head"><span class="org">CASEKOO</span><span class="when">Jun – Aug 2024</span></div>
+          <p class="role">Marketing Content Creator</p>
+          <ul><li>Analyzed how the Chinese company could begin promoting in Malaysia</li></ul>
+        </div>
+        <div class="entry">
+          <div class="head"><span class="org">She’s The First Taylor’s Lakeside Campus</span><span class="when">May – Dec 2024</span></div>
+          <p class="role">PR Director</p>
+          <ul>
+            <li>Raised RM833 for breast cancer awareness in Malaysia</li>
+            <li>Organized the club’s booth at the student organization fair, bringing in 53 new membership applicants in one day</li>
+            <li>Designed graphics for promotional material</li>
+          </ul>
+        </div>
+      </section>
+
+      <section>
+        <h2>Education</h2>
+        <div class="entry">
+          <div class="head"><span class="org">University of Illinois Urbana-Champaign</span><span class="when">Aug 2025 – May 2029</span></div>
+          <p>Industrial Design + Data Science</p>
+          <p class="muted">4.0 GPA · Dean’s List (F25, S26) · James G. Hansen Scholarship recipient</p>
+        </div>
+        <div class="entry">
+          <div class="head"><span class="org">Taylor’s University Malaysia</span><span class="when">Aug 2023 – May 2025</span></div>
+          <p>American Degree Program · Business</p>
+          <p class="muted">4.0 CGPA · Dean’s List · Excellence Award Scholarship recipient · Summa Cum Laude · Best Student in Business 2025</p>
+        </div>
+      </section>
+
+      <section>
+        <h2>Projects</h2>
+        <p class="proj"><span class="name">isogu</span><span class="kind">solo</span><span class="muted">Physical prototyping, Fusion360 CAD, 3D printing, brand design, CMF design</span></p>
+        <p class="proj"><span class="name">kove</span><span class="kind">group</span><span class="muted">Design thinking, rapid prototyping, woodworking</span></p>
+        <p class="proj"><span class="name">nimi</span><span class="kind">solo</span><span class="muted">Rapid ideation and iteration, concept development, sketching, rendering</span></p>
+      </section>
+    </main>
+    </div>
+  </div>
+</body>
+</html>
