@@ -40,3 +40,9 @@ assets/sanding.JPG
 assets/dark mode.MOV
 assets/coral calm.MOV
 assets/coral lively.MOV
+
+# kove source files (the analysis PDF alone is 163MB, over GitHub's limit)
+kove portfolio/
+
+# nimi source files (full-size originals; only the web versions in assets/ are committed)
+nimi portfolio/

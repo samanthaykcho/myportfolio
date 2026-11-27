@@ -68,14 +68,23 @@ const groups = [...document.querySelectorAll(".vp")].map((el) => {
   el.setAttribute("aria-label", text);
   el.textContent = "";
   const from = Number(el.dataset.from);
-  const letters = [...text].map((char) => {
-    const span = document.createElement("span");
-    span.className = "ch";
-    span.setAttribute("aria-hidden", "true");
-    span.textContent = char;
-    el.appendChild(span);
-    return { span, weight: from, x: 0, y: 0, vx: 0, vy: 0 };
-  });
+  // each word's letters sit in a .vp-word wrapper, so a long label wraps
+  // between words, never mid-word (the spaces stay outside, as break points)
+  const letters = [];
+  for (const part of text.split(/(\s+)/)) {
+    if (!part) continue;
+    const isSpace = /^\s+$/.test(part);
+    const holder = isSpace ? el : el.appendChild(document.createElement("span"));
+    if (!isSpace) { holder.className = "vp-word"; holder.setAttribute("aria-hidden", "true"); }
+    for (const char of part) {
+      const span = document.createElement("span");
+      span.className = "ch";
+      span.setAttribute("aria-hidden", "true");
+      span.textContent = char;
+      holder.appendChild(span);
+      letters.push({ span, weight: from, x: 0, y: 0, vx: 0, vy: 0 });
+    }
+  }
   return {
     el, letters, from,
     to: Number(el.dataset.to),
@@ -89,22 +98,49 @@ const groups = [...document.querySelectorAll(".vp")].map((el) => {
 const STIFFNESS = 0.06; // higher = snappier
 const DAMPING = 0.82;   // lower = more wobble
 
+// Performance: every position is READ first, then every style is WRITTEN, so the
+// browser lays the page out once per frame (reading right after writing forces a
+// fresh layout, which per letter made the whole site lag). Text that's hidden,
+// off screen, or resting with the cursor far away is skipped entirely.
+function isSettled(g) {
+  return g.letters.every((l) =>
+    Math.abs(l.weight - g.from) < 0.5 && Math.abs(l.x) < 0.05 && Math.abs(l.y) < 0.05 &&
+    Math.abs(l.vx) < 0.05 && Math.abs(l.vy) < 0.05);
+}
+
 function animate() {
+  const vh = window.innerHeight;
+  const active = [];
+
+  // ---- read phase: no style changes in here ----
   for (const g of groups) {
-    for (const l of g.letters) {
-      const r = l.span.getBoundingClientRect();
-      // resting center (remove the offset we've already applied)
-      const cx = r.left + r.width / 2 - l.x;
-      const cy = r.top + r.height / 2 - l.y;
-      const dx = mouse.x - cx;
-      const dy = mouse.y - cy;
-      const d = Math.hypot(dx, dy);
-      const falloff = Math.max(0, 1 - d / g.radius);
+    const box = g.el.getBoundingClientRect();
+    if (box.width === 0 && box.height === 0) continue;                  // on a hidden page
+    if (box.bottom < -g.radius || box.top > vh + g.radius) continue;    // off screen
+    const near = mouse.x > box.left - g.radius && mouse.x < box.right + g.radius &&
+                 mouse.y > box.top - g.radius && mouse.y < box.bottom + g.radius;
+    if (!near && g.settled) continue;                                   // resting: nothing to do
+    g.settled = false;
+    // resting centre of each letter (minus the offset we've already applied)
+    const centres = near
+      ? g.letters.map((l) => { const r = l.span.getBoundingClientRect(); return [r.left + r.width / 2 - l.x, r.top + r.height / 2 - l.y]; })
+      : null;                                                           // far away: falloff is 0 anyway
+    active.push([g, centres]);
+  }
+
+  // ---- write phase ----
+  for (const [g, centres] of active) {
+    g.letters.forEach((l, i) => {
+      let dx = 0, dy = 0, falloff = 0;
+      if (centres) {
+        dx = mouse.x - centres[i][0];
+        dy = mouse.y - centres[i][1];
+        falloff = Math.max(0, 1 - Math.hypot(dx, dy) / g.radius);
+      }
 
       // weight
       const target = g.from + (g.to - g.from) * falloff;
       l.weight += (target - l.weight) * 0.2;
-      l.span.style.fontVariationSettings = `'wght' ${l.weight.toFixed(1)}`;
 
       // stickiness: spring toward a point partway to the cursor
       const tx = dx * falloff * g.pull;
@@ -113,7 +149,14 @@ function animate() {
       l.vy = (l.vy + (ty - l.y) * STIFFNESS) * DAMPING;
       l.x += l.vx;
       l.y += l.vy;
-      l.span.style.transform = `translate(${l.x.toFixed(2)}px, ${l.y.toFixed(2)}px)`;
+    });
+    if (!centres && isSettled(g)) {            // snap exactly to rest, then stop updating it
+      g.letters.forEach((l) => { l.weight = g.from; l.x = l.y = l.vx = l.vy = 0; });
+      g.settled = true;
+    }
+    for (const l of g.letters) {
+      l.span.style.fontVariationSettings = `'wght' ${l.weight.toFixed(1)}`;
+      l.span.style.transform = l.x || l.y ? `translate(${l.x.toFixed(2)}px, ${l.y.toFixed(2)}px)` : "";
     }
   }
   requestAnimationFrame(animate);
@@ -204,7 +247,8 @@ function updateVideoBlur() {
     const edge = Math.min(t, d - t);                    // seconds from nearest end
     const k = Math.max(0, 1 - edge / Math.min(RAMP, d / 2));
     const eased = k * k * (3 - 2 * k);                  // smoothstep
-    blurTarget.style.filter = `blur(${(BLUR_BASE + (BLUR_PEAK - BLUR_BASE) * eased).toFixed(1)}px)`;
+    const f = `blur(${(BLUR_BASE + (BLUR_PEAK - BLUR_BASE) * eased).toFixed(1)}px)`;
+    if (blurTarget.style.filter !== f) blurTarget.style.filter = f;   // only touch it when it changes
   }
   requestAnimationFrame(updateVideoBlur);
 }
@@ -497,7 +541,7 @@ requestAnimationFrame(updateVideoBlur);
 
     const t = e.target instanceof Element ? e.target : null;
     const inText = !!t?.closest(TEXT);
-    const onSheet = !!t?.closest(".contents, .case-sheet, .matrix, .case-index"); // the white sheets (not the hero photos: Sam wants white there)
+    const onSheet = !!t?.closest(".contents, .case-sheet, .matrix, .case-index, .case-hero--light"); // the white sheets + light hero photos (isogu's hero keeps the white cursor: Sam's call)
     cursor.classList.toggle("hover", !!t?.closest(CLICKABLE));
     cursor.classList.toggle("text", inText);
     cursor.classList.toggle("light", onSheet);
@@ -585,7 +629,7 @@ function entranceItems(view) {
   return view === aboutView
     ? view.querySelectorAll(".about-photo, .about-text > *")
     : view.querySelector(".case-hero")
-      ? view.querySelectorAll(".case-logo")
+      ? view.querySelectorAll(".case-logo, .kove-spill")   // the logo (and kove's cut-out) trail the photo
       : view.querySelectorAll(".soon-text > *, .soon-photo");   // "coming soon" pages
 }
 
@@ -605,7 +649,10 @@ function pinLockup() {
 // "Coming soon" pages sit on the video, so the nav stays white there.
 function updateNav() {
   const onSheet = !current && contentsSheet.getBoundingClientRect().top <= 40;
-  const onProject = !!current && !!current.querySelector(".case-hero");
+  // a project with a hero photo is light from the top; a "coming soon"-style page
+  // (on the video) turns dark once its white sheet reaches the nav
+  const sheet = current && current.querySelector(".case-sheet");
+  const onProject = !!current && (!!current.querySelector(".case-hero") || (!!sheet && sheet.getBoundingClientRect().top <= 40));
   nav.classList.toggle("on-light", onSheet || onProject);
   homeIcon.classList.toggle("on-light", onSheet || onProject);
   // once the work page covers the screen, the top nav tucks away (it's in the footer)
@@ -620,7 +667,7 @@ function setCurrent(link, on) {
   if (on) link.setAttribute("aria-current", "page");
   else link.removeAttribute("aria-current");
   const g = groups.find((g) => g.el === link);
-  if (g) g.from = on ? 800 : 600;
+  if (g) { g.from = on ? 800 : 600; g.settled = false; }
 }
 function markCurrent() {
   setCurrent(navAbout, current === aboutView);
@@ -652,7 +699,15 @@ function homeTarget(hash) {
   if (hash === "#work") return contentsSheet.getBoundingClientRect().top + window.scrollY;
   return 0;
 }
-function refresh() { updateNav(); updateParallax(); updateCaseIndex(); }
+// A project page with a hero photo covers the background completely, so the
+// video (and the water + blur drawn from it) pauses there to save work; it
+// picks up again as soon as you head back to a page that shows it.
+function syncBackground() {
+  const covered = !!current && !!current.querySelector(".case-hero") && !busy;
+  if (covered) { if (!bgVideo.paused) bgVideo.pause(); }
+  else if (bgVideo.paused) bgVideo.play().catch(() => {});
+}
+function refresh() { updateNav(); updateParallax(); updateCaseIndex(); syncBackground(); }
 
 async function showPage(view, animate) {
   const from = current;
@@ -661,6 +716,7 @@ async function showPage(view, animate) {
   const leaving = from || homeView;
   if (from) fixInPlace(from, -window.scrollY); // freeze the old page where it is
   current = view;
+  if (!view.querySelector(".case-hero")) syncBackground();   // e.g. about: it sits on the video
   view.hidden = false;
   markCurrent();
   updateNav();
@@ -699,6 +755,7 @@ async function showHome(hash, fromHistory, animate) {
   if (!from) { lenis.scrollTo(homeTarget(hash)); return; }  // already home: just glide
   fixInPlace(from, -window.scrollY);            // freeze the page where it is
   current = null;
+  syncBackground();                             // video back on before home slides in
   homeView.hidden = false;
   pinLockup();                                  // measure now that home is visible again
   // back button: land exactly where you were (e.g. next to the card you clicked)
@@ -906,6 +963,26 @@ document.addEventListener("keydown", (e) => {
 });
 window.addEventListener("popstate", closeLightbox);
 
+/* ---------- Analysis folders (kove) ----------
+   Mouse: hover fans the pages out (CSS). Touch has no hover, so the first tap
+   on a folder opens it (and closes any other), a tap on a page then opens the
+   page in the lightbox, and a tap on the folder itself or anywhere else closes it. */
+const folders = document.querySelectorAll(".folder");
+const noHover = window.matchMedia("(hover: none)");
+folders.forEach((folder) => {
+  folder.addEventListener("click", (e) => {
+    if (!noHover.matches) return;
+    const open = folder.classList.contains("open");
+    if (open && e.target.closest(".folder-page")) return;   // let the page open in the lightbox
+    e.preventDefault();
+    e.stopPropagation();
+    folders.forEach((f) => f.classList.toggle("open", f === folder && !open));
+  }, true);
+});
+document.addEventListener("click", (e) => {
+  if (!e.target.closest(".folder, .lightbox")) folders.forEach((f) => f.classList.remove("open"));
+});
+
 /* ---------- Section index (behaviour) ----------
    Fades in once the white sheet reaches mid-screen (hidden over the hero),
    marks the section you're reading (blue + heavier), and glides to a section
@@ -916,7 +993,7 @@ function setIndexCurrent(btn, on) {
   if (on) btn.setAttribute("aria-current", "location");
   else btn.removeAttribute("aria-current");
   const g = groups.find((g) => g.el === btn);
-  if (g) g.from = on ? 800 : 500;
+  if (g) { g.from = on ? 800 : 500; g.settled = false; }
 }
 function setIndexOpen(ix, open) {
   ix.nav.classList.toggle("open", open);

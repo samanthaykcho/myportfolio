@@ -200,6 +200,7 @@ html.has-cursor textarea { cursor: text !important; }
 
 /* one span per letter (created by script.js) */
 .vp .ch { display: inline-block; white-space: pre; }
+.vp .vp-word { white-space: nowrap; }   /* wrap between words only */
 
 /* ---------- contents page ---------- */
 :root {
@@ -836,6 +837,13 @@ html.lenis.lenis-stopped { overflow: auto; }
   font-size: clamp(1rem, 1.25vw, 1.15rem);
   font-weight: 500;
   line-height: 1.5;
+}
+.case-group {
+  margin-top: 0.6rem;
+  max-width: 48ch;
+  font-size: clamp(1rem, 1.25vw, 1.15rem);
+  line-height: 1.5;
+  color: rgba(17, 17, 17, 0.6);
 }
 
 /* ---- story sections (context, research, …) ---- */
@@ -1584,6 +1592,9 @@ figure.split-img img { filter: drop-shadow(0 14px 18px rgba(0, 0, 0, 0.14)); }  
   transition: opacity 400ms var(--ease-out);
 }
 .case-index-toggle { display: none; }
+/* stay inside the left margin: long names ("final manufacturing") wrap instead of running into the sheet */
+.case-index { max-width: calc((100vw - min(1100px, 86vw)) / 2 - clamp(1.2rem, 2.6vw, 2.5rem) - 1.2rem); }
+.case-index-list button { line-height: 1.25; }
 .case-index-list { list-style: none; display: grid; gap: 0.2rem; }
 .case-index-list button {
   padding: 0.3rem 0;
@@ -1603,6 +1614,7 @@ figure.split-img img { filter: drop-shadow(0 14px 18px rgba(0, 0, 0, 0.14)); }  
 /* not enough margin beside the sheet: switch to the pill */
 @media (max-width: 1379px) {
   .case-index {
+    max-width: none;
     left: 50%;
     top: auto;
     bottom: 1.2rem;
@@ -1700,3 +1712,570 @@ figure.split-img img { filter: drop-shadow(0 14px 18px rgba(0, 0, 0, 0.14)); }  
 .case-link:focus-visible { outline: 2px solid var(--blue); outline-offset: 4px; }
 .back--fwd { margin-top: 1.2rem; }
 .back--fwd + .back { margin-top: 0.4rem; }
+
+/* ---------- project type (solo / group) ----------
+   A small outlined pill above the skills line, on the work cards and
+   at the top of each project page. Inherits the text colour around it. */
+.kind {
+  display: block;
+  width: fit-content;
+  margin-bottom: 0.6rem;
+  padding: 0.18em 0.75em 0.22em;
+  border: 1.5px solid currentColor;
+  border-radius: 999px;
+  font-size: 0.8em;
+  font-weight: 600;
+  line-height: 1.2;
+  letter-spacing: 0.01em;
+  opacity: 0.75;
+}
+
+/* ---------- form analysis folders (kove) ----------
+   Each analysed set is a folder: a back panel with a tab, three analysis
+   pages tucked inside (only their tabs peek out), and a front panel with the
+   set's photo, name and keywords. Hover / keyboard focus / tap (.open) fans
+   the pages up out of the folder; clicking a page opens it in the lightbox.
+   Folder colours are pulled from the background video, so they follow the
+   colourway: ocean blues for aquarium, olive-black + driftwood for dark. */
+:root {
+  --folder-a-back: #00467a;
+  --folder-a: #015f97;
+  --folder-b-back: #02709f;
+  --folder-b: #0787b6;
+}
+:root[data-colourway="dark"] {
+  --folder-a-back: #15170f;
+  --folder-a: #262a1e;
+  --folder-b-back: #423e2a;
+  --folder-b: #5a553c;
+}
+
+.folders {
+  width: min(1100px, 86vw);
+  margin: clamp(6rem, 15vw, 12rem) auto 0;   /* headroom: the pages rise above the folders */
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  column-gap: clamp(2rem, 6vw, 5rem);
+}
+.folder {
+  --fb: var(--folder-a-back);
+  --ff: var(--folder-a);
+  position: relative;
+  aspect-ratio: 10 / 7;
+  color: #fff;
+}
+.folder--b { --fb: var(--folder-b-back); --ff: var(--folder-b); }
+
+/* back panel + its tab */
+.folder-back {
+  position: absolute;
+  inset: 8% 0 0;
+  z-index: 1;
+  background: var(--fb);
+  border-radius: 0 14px 14px 14px;
+  transition: background 600ms var(--ease-out);
+}
+.folder-tab {
+  position: absolute;
+  bottom: calc(100% - 1px);
+  left: 0;
+  padding: 0.45em 1.2em 0.35em;
+  background: var(--fb);
+  border-radius: 12px 12px 0 0;
+  font-size: clamp(0.7rem, 0.85vw, 0.8rem);
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  transition: background 600ms var(--ease-out);
+}
+
+/* the pages inside: stacked, only their tabs showing at rest */
+.folder-pages { position: absolute; inset: 0; z-index: 2; }
+.folder-page {
+  --tx: calc(var(--i) * 27% + 20%);             /* tabs step right, clear of the folder's own tab */
+  --rest: calc(var(--i) * 3% - 6%);             /* back pages sit a little higher */
+  position: absolute;
+  left: 8%;
+  width: 84%;
+  top: 17%;
+  padding: 0;
+  border: 0;
+  border-radius: 6px;
+  background: #fff;
+  color: var(--ink);
+  font: inherit;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.16);
+  transform: translateY(var(--rest));
+  transition: transform 380ms var(--ease-out);
+  transition-delay: calc((2 - var(--i)) * 40ms);   /* closing: front page tucks in first */
+}
+.folder-page img {
+  display: block;
+  width: 100%;
+  height: auto;
+  border-radius: 6px;
+}
+.page-tab {
+  position: absolute;
+  bottom: calc(100% - 2px);
+  left: var(--tx);
+  max-width: 30%;
+  padding: 0.4em 0.9em 0.3em;
+  background: #fff;
+  border-radius: 8px 8px 0 0;
+  font-size: clamp(0.62rem, 0.75vw, 0.74rem);
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* front panel: photo + name + keywords */
+.folder-front {
+  position: absolute;
+  inset: 27% 0 0;
+  z-index: 3;
+  display: flex;
+  gap: 5%;
+  align-items: center;
+  padding: 5%;
+  background: var(--ff);
+  border-radius: 14px;
+  box-shadow: 0 -8px 20px rgba(0, 0, 0, 0.14), inset 0 1px 0 rgba(255, 255, 255, 0.14);
+  transition: background 600ms var(--ease-out), transform 500ms var(--ease-out);
+}
+.folder-photo {
+  height: 100%;
+  aspect-ratio: 1;
+  width: auto;
+  object-fit: cover;
+  border-radius: 8px;
+  flex-shrink: 0;
+}
+.folder-info { min-width: 0; }
+.folder-name {
+  font-size: clamp(1.2rem, 2vw, 1.8rem);
+  font-weight: 700;
+  line-height: 1.05;
+  letter-spacing: -0.01em;
+}
+.folder-by {
+  margin-top: 0.4rem;
+  font-size: clamp(0.78rem, 0.95vw, 0.9rem);
+  font-weight: 500;
+  opacity: 0.85;
+}
+.folder-tags {
+  list-style: none;
+  margin-top: 0.9rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+}
+.folder-tags li {
+  padding: 0.15em 0.7em 0.2em;
+  border: 1.5px solid rgba(255, 255, 255, 0.7);
+  border-radius: 999px;
+  font-size: clamp(0.7rem, 0.85vw, 0.8rem);
+  font-weight: 600;
+}
+
+/* open: the pages fan up out of the folder, one after another */
+.folder-page:nth-child(1) { --x: -13%; --y: -64%; --r: -5deg; }
+.folder-page:nth-child(2) { --x: 0%;   --y: -78%; --r: 0deg; }
+.folder-page:nth-child(3) { --x: 13%;  --y: -64%; --r: 5deg; }
+.folder.open .folder-page,
+.folder:focus-within .folder-page {
+  transform: translate(var(--x), var(--y)) rotate(var(--r));
+  transition: transform 560ms cubic-bezier(0.34, 1.25, 0.64, 1);
+  transition-delay: calc(var(--i) * 60ms);
+}
+.folder.open .folder-front,
+.folder:focus-within .folder-front { transform: translateY(3%); }
+@media (hover: hover) and (pointer: fine) {
+  .folder:hover .folder-page {
+    transform: translate(var(--x), var(--y)) rotate(var(--r));
+    transition: transform 560ms cubic-bezier(0.34, 1.25, 0.64, 1);
+    transition-delay: calc(var(--i) * 60ms);
+  }
+  .folder:hover .folder-front { transform: translateY(3%); }
+  /* pointing at one page brings it to the top of the fan */
+  .folder:hover .folder-page:hover {
+    z-index: 5;
+    transform: translate(var(--x), calc(var(--y) - 4%)) rotate(0deg) scale(1.04);
+    transition-delay: 0ms;
+    transition-duration: 300ms;
+  }
+}
+.folder-page:focus-visible { outline: 2px solid var(--blue); outline-offset: 4px; z-index: 5; }
+
+.folders-hint {
+  margin-top: 2.4rem;
+  text-align: center;
+  font-size: clamp(0.85rem, 1vw, 0.95rem);
+  font-weight: 500;
+  opacity: 0.62;
+}
+.hint-touch { display: none; }
+@media (hover: none) {
+  .hint-mouse { display: none; }
+  .hint-touch { display: inline; }
+}
+
+
+@media (max-width: 760px) {
+  .folders {
+    grid-template-columns: 1fr;
+    row-gap: 52vw;               /* room for the next folder's pages to rise */
+    margin-top: 46vw;
+  }
+  /* a taller folder so the photo + keywords fit on a phone */
+  .folder { aspect-ratio: 10 / 8.4; }
+  .folder-front { inset: 31% 0 0; }
+  .folder-photo { height: 86%; }
+}
+
+/* between the intro and the folders: a note that they're only a sample + a pill to see everything */
+.case-lead--tight { margin-bottom: 1.6rem; }
+.folders-more {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 1.1rem;
+}
+.folders-note {
+  max-width: 64ch;
+  text-wrap: pretty;   /* no lone last word when it does wrap */
+  font-size: clamp(0.95rem, 1.15vw, 1.05rem);
+  font-weight: 500;
+  line-height: 1.5;
+  color: rgba(17, 17, 17, 0.6);
+}
+.folders-note b { font-weight: 700; }
+.pill-btn {
+  padding: 0.7em 1.5em 0.75em;
+  border: 0;
+  border-radius: 999px;
+  background: var(--folder-a);
+  color: #fff;
+  font: inherit;
+  font-size: clamp(0.95rem, 1.1vw, 1.05rem);
+  font-weight: 700;
+  transition: background 600ms var(--ease-out), transform 160ms var(--ease-out);
+}
+.pill-btn span { display: inline-block; transition: transform 300ms var(--ease-out); }
+.pill-btn:active { transform: scale(0.97); }
+@media (hover: hover) and (pointer: fine) {
+  .pill-btn:hover span { transform: translateX(4px); }
+}
+.pill-btn:focus-visible { outline: 2px solid var(--blue); outline-offset: 4px; }
+
+/* the full analysis in the lightbox: every page in one scrolling column */
+.doc-viewer {
+  width: min(1100px, 100%);
+  max-height: 90vh;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  display: grid;
+  gap: 1.2rem;
+  padding: clamp(1rem, 2.4vw, 2rem);
+  background: #fff;
+  color: var(--ink);
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.35);
+  animation: lb-zoom 300ms var(--ease-out);
+}
+.doc-title {
+  font-size: clamp(1.2rem, 2vw, 1.6rem);
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+.doc-title span { font-weight: 500; opacity: 0.62; margin-left: 0.4em; }
+.doc-viewer img {
+  display: block;
+  width: 100%;
+  height: auto;
+  border: 1px solid rgba(17, 17, 17, 0.1);
+}
+
+/* ---- kove ideation: the 3 final concepts, render on top + orthographic page below ---- */
+.kconcepts {
+  margin-top: 16vh;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  column-gap: 4vw;
+  align-items: start;
+}
+.kconcept { margin: 0; display: grid; gap: 1.6rem; }
+.kconcept:nth-child(2) { transition-delay: 120ms; }
+.kconcept:nth-child(3) { transition-delay: 240ms; }
+/* orthographic pages differ in shape: give them one frame so the row lines up */
+.kconcept-ortho { aspect-ratio: 4 / 3; }
+.kconcept-ortho img { height: 100%; object-fit: contain; }
+.kconcept figcaption {
+  padding-top: 1rem;
+  border-top: 1.5px solid rgba(17, 17, 17, 0.15);
+  font-size: clamp(1.05rem, 1.35vw, 1.25rem);
+  font-weight: 700;
+}
+@media (max-width: 760px) {
+  .kconcepts { grid-template-columns: 1fr; row-gap: 5rem; }
+}
+
+/* ---- kove group ideation: the motif, then the group's sketch pages ---- */
+.kgroup { margin-top: 22vh; }
+.motif {
+  margin: 7vh auto 12vh;
+  text-align: center;
+  font-size: clamp(2.2rem, 5vw, 4.4rem);
+  font-weight: 600;
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+}
+.motif em { font-style: normal; color: var(--blue); }
+/* the three group pages in one row at the same height: each column's width follows its page's shape */
+.kgroup-row {
+  margin: 0 auto;
+  width: min(1000px, 100%);
+  display: grid;
+  grid-template-columns: 1.314fr 0.73fr 1.322fr;
+  column-gap: 2vw;
+  align-items: end;
+}
+.kgroup-row figure { margin: 0; }
+.kgroup-row figure:nth-child(2) { transition-delay: 100ms; }
+.kgroup-row figure:nth-child(3) { transition-delay: 200ms; }
+@media (max-width: 760px) {
+  .kgroup-row { grid-template-columns: 1fr; row-gap: 2.5rem; }
+}
+
+/* ---- kove prototyping + woodworking photo layouts (all zoomable) ---- */
+/* photos cropped into a tile; the lightbox still shows the whole photo */
+.sketch-paper.tile { aspect-ratio: 1; overflow: hidden; }
+.sketch-paper.tile img { height: 100%; object-fit: cover; }
+.kcard, .kfoam, .kwood { display: grid; column-gap: 2vw; row-gap: 2vw; }
+.kcard figure, .kfoam figure, .kwood figure { margin: 0; }
+/* cardboard: the render + model showcase (3:4) beside a 2×2 of square tiles, same height */
+.kcard { grid-template-columns: 3fr 4fr; align-items: center; }
+.kcard-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 2vw; }
+.kcard-grid figure:nth-child(2) { transition-delay: 80ms; }
+.kcard-grid figure:nth-child(3) { transition-delay: 160ms; }
+.kcard-grid figure:nth-child(4) { transition-delay: 240ms; }
+/* appearance models: two landscape + one portrait photo at the same height, numbered like .kwood */
+.kfoam { list-style: none; grid-template-columns: 1.333fr 1.333fr 0.75fr; align-items: start; }
+.kfoam li:nth-child(2) { transition-delay: 100ms; }
+.kfoam li:nth-child(3) { transition-delay: 200ms; }
+/* final manufacturing: six numbered portrait photos, three across (captions like isogu's .make-cap) */
+.kwood { list-style: none; grid-template-columns: repeat(3, 1fr); row-gap: 3rem; }
+.kwood li:nth-child(3n + 2) { transition-delay: 100ms; }
+.kwood li:nth-child(3n) { transition-delay: 200ms; }
+@media (max-width: 760px) {
+  .kcard { grid-template-columns: 1fr; row-gap: 3vw; }
+  .kfoam { grid-template-columns: 1fr 1fr; }
+  .kfoam li:first-child { grid-column: 1 / -1; }
+  .kwood { grid-template-columns: 1fr 1fr; }
+}
+/* cardboard cut-outs: whole model shown (no crop) in a square cell, label underneath */
+.sketch-paper.cut { position: relative; aspect-ratio: 10 / 9; }
+.sketch-paper.cut img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain; }
+.kcard-grid figcaption {
+  margin-top: 0.5rem;
+  font-size: clamp(0.85rem, 1vw, 0.95rem);
+  font-weight: 600;
+  text-align: center;
+  opacity: 0.62;
+}
+
+/* ---- kove hero: light photo; Sam's colourful logo sits in the empty table top-left ---- */
+.case-hero--light { background: #e9e6df; }
+.case-hero--light .case-hero-img { object-position: 50% 50%; }
+.kove-logo {
+  left: 7vw;
+  right: auto;
+  top: max(13vh, 6rem);
+  width: min(28vw, 44vh, 520px);   /* kept clear of the first spoon on wide screens */
+  margin: 0;
+}
+@media (max-width: 760px) {
+  .kove-logo { width: 52vw; top: 12vh; }
+}
+/* ---- nimi hero: blue render, so the name is white rounded text in the empty sky ---- */
+/* the render's bottom white band is transparent (only the strap is left), so the
+   blue part is sized to cover the hero exactly, its bottom edge on the hero's
+   bottom edge, and the strap hangs down over the white sheet.
+   Blue part = 52.863% of the image's width (2696 of 5100px). */
+.case-hero--sky {
+  z-index: 2;              /* above the sheet, so the strap shows on it */
+  min-height: 0;
+  overflow-x: clip;        /* trim the sides, but let the strap out the bottom */
+  overflow-y: visible;
+  background: #2f8ff5;
+}
+.case-hero--sky .case-hero-img {
+  inset: auto;
+  left: 50%;
+  top: calc(100vh - max(52.863vw, 100vh));
+  width: max(100vw, 189.17vh);
+  height: auto;
+  transform: translateX(-50%);
+  object-fit: fill;
+  pointer-events: none;
+}
+.nimi-title {
+  left: 6vw;
+  right: auto;
+  top: max(14vh, 6rem);
+  width: auto;
+  margin: 0;
+  color: #fff;
+  font-size: clamp(4rem, 10vw, 10rem);
+  font-weight: 700;
+  line-height: 0.9;
+  letter-spacing: -0.03em;
+  filter: url(#round-head);
+}
+
+/* ---- one big zoomable board (nimi mood board, sketch sheet) ---- */
+.case-board { margin: 0; }
+.case-board--sketches { width: min(100%, 980px); margin: 0 auto; }
+
+/* the final poster has notes all over it: show it whole, edge to edge */
+.final-shot--whole { height: auto; min-height: 0; }
+.final-shot--whole img { height: auto; }
+
+/* ---- kove: the top-down set, cut out, straddling the hero and the white sheet ---- */
+.case-sheet--spill { position: relative; }
+.kove-spill {
+  position: absolute;
+  z-index: 2;
+  right: 9vw;
+  top: -40vh;             /* mostly over the hero photo; ends above the line under the skills */
+  height: 48vh;
+  width: auto;
+  filter: drop-shadow(0 26px 34px rgba(60, 40, 15, 0.32)) drop-shadow(0 6px 10px rgba(60, 40, 15, 0.18));
+  pointer-events: none;
+}
+@media (max-width: 760px) {
+  .kove-spill { height: 30vh; top: -26vh; right: 6vw; }
+}
+
+/* ---------- nimi "the product" ---------- */
+.nimi-kicker {
+  margin: 0 0 0.5rem;
+  color: var(--blue);
+  font-weight: 650;
+  font-size: 1rem;
+}
+/* callout diagrams: picture in the middle, thin blue lines out to numbered notes */
+.callouts { margin: 8vh 0 0; }
+.callouts + .callouts { margin-top: 12vh; }
+.co-stage { position: relative; width: 100%; }
+.co-lines {
+  z-index: 1;               /* over the picture, so each line reaches its dot */
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  pointer-events: none;
+}
+.co-lines polyline {
+  fill: none;
+  stroke: var(--blue);
+  stroke-width: 1.5;
+  stroke-linejoin: round;
+  vector-effect: non-scaling-stroke;   /* stays a hairline however the stage scales */
+}
+.co-pic { position: absolute; top: 0; }
+.co-pic img { display: block; width: 100%; height: auto; }
+/* where each line starts: a small blue dot on the feature (the number shows on phones) */
+.co-dot {
+  z-index: 2;
+  position: absolute;
+  transform: translate(-50%, -50%);
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: var(--blue);
+  box-shadow: 0 0 0 3px #fff;
+  font-size: 0;
+}
+.co-notes { list-style: none; margin: 0; padding: 0; }
+.co-notes li {
+  position: absolute;
+  transform: translateY(-50%);
+  width: calc(100% - var(--edge) - 1%);
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  font-size: clamp(0.85rem, 1vw, 0.98rem);
+  line-height: 1.4;
+  font-weight: 500;
+}
+.co-l { right: calc(var(--edge) + 0.5%); flex-direction: row-reverse; text-align: right; }
+.co-r { left: calc(var(--edge) + 0.5%); }
+.co-notes b {
+  flex: none;
+  width: 1.5rem;
+  height: 1.5rem;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  background: var(--blue);
+  color: #fff;
+  font-size: 0.8rem;
+  font-weight: 700;
+}
+/* each note: a short part name, then one line on what it does */
+.co-notes strong { display: block; font-weight: 650; color: var(--ink); }
+.co-notes span { color: rgba(17, 17, 17, 0.68); }
+/* a smaller motif line (nimi's "clouds + sun") */
+.motif--sm { font-size: clamp(1.4rem, 2.6vw, 2.2rem); font-weight: 600; }
+.callouts + .motif { margin-top: 14vh; }
+@media (max-width: 760px) {
+  .co-stage { aspect-ratio: auto !important; }
+  .co-lines { display: none; }
+  .co-pic { position: relative; left: auto !important; width: 100% !important; }
+  .co-dot {
+    width: 1.4rem; height: 1.4rem;
+    display: grid; place-items: center;
+    font-size: 0.75rem; font-weight: 700; color: #fff;
+  }
+  .co-notes { margin-top: 1.5rem; display: grid; gap: 0.8rem; }
+  .co-notes li { position: static; transform: none; width: auto; flex-direction: row; text-align: left; }
+}
+
+/* ---------- nimi "the name": nimi + nimbus ---------- */
+.name-eq {
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  gap: clamp(1.5rem, 5vw, 5rem);
+  margin: 4vh 0 7vh;
+  text-align: center;
+}
+.name-word { display: flex; flex-direction: column; align-items: center; }
+.name-big {
+  font-size: clamp(3.4rem, 9vw, 8rem);
+  font-weight: 700;
+  line-height: 0.95;
+  letter-spacing: -0.03em;
+  filter: url(#round-head);
+}
+.name-lang { margin-top: 0.8rem; font-size: 0.95rem; opacity: 0.55; }
+.name-mean { margin-top: 0.2rem; font-size: clamp(1.2rem, 1.8vw, 1.6rem); font-weight: 600; }
+.name-role {
+  margin-top: 1rem;
+  padding: 0.3rem 0.9rem;
+  border-radius: 999px;
+  background: var(--blue);
+  color: #fff;
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+.name-plus {
+  font-size: clamp(2.4rem, 6vw, 5rem);
+  font-weight: 300;
+  line-height: 1.3;
+  color: var(--blue);
+}
+.name-text { margin: 0 auto 0; text-align: center; }
+
